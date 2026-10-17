@@ -6,6 +6,8 @@
 
 [![CI](https://github.com/Pinyi333/cavalry-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Pinyi333/cavalry-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/github/package-json/v/Pinyi333/cavalry-mcp?label=version)](CHANGELOG.md)
+[![GitHub stars](https://img.shields.io/github/stars/Pinyi333/cavalry-mcp?style=flat)](https://github.com/Pinyi333/cavalry-mcp/stargazers)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.17-339933)
 ![MCP](https://img.shields.io/badge/MCP-stdio-8A2BE2)
 
@@ -323,7 +325,7 @@ To add a tool: implement the operation in the bridge's `ops` table, add its defi
 
 ## Contributing
 
-Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. The automated tests run against an emulated Cavalry, so reports from real Cavalry sessions, including version, OS and the failing tool call, are especially valuable.
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md). The automated tests run against an emulated Cavalry, so reports from real Cavalry sessions, including version, OS and the failing tool call, are especially valuable.
 
 ## Acknowledgements
 

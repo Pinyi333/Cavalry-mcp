@@ -52,7 +52,7 @@ Check function names against the official
   `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`, `ci/`, `perf/`. Examples: `feat/render-queue-tools`,
   `fix/bridge-timeout-message`, `docs/zh-tw-install-guide`.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for messages (`feat:`, `fix:`, `docs:`, …).
-- Make sure `npm run check` passes. CI runs the same command on Node 20, 22 and 24.
+- Make sure `npm run check` passes. CI runs the same command on Node 22 and 24. Development tools (vitest, eslint) need Node 22.12 or later.
 - If you change the request/response shape, bump `PROTOCOL_VERSION` in both `src/bridge-client.ts` and the bridge,
   and document it in `docs/protocol.md`.
 

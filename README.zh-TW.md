@@ -62,12 +62,12 @@ Cavalry MCP 是一個 MCP 伺服器，提供 AI 助理一組**有型別、經過
 
 ## 系統需求
 
-| 元件                               | 版本                                                                |
-| ---------------------------------- | ------------------------------------------------------------------- |
-| [Cavalry](https://cavalry.studio/) | **2.7 以上**（自 2.7 起個人使用免費，包含腳本功能）                 |
-| [Node.js](https://nodejs.org/)     | **18.17 以上**（建議 20 LTS 或更新版本）                            |
-| MCP 用戶端                         | Claude Desktop、Claude Code、Cursor，或任何支援 stdio 的 MCP 用戶端 |
-| 作業系統                           | macOS 12+ 或 Windows 10+（Cavalry 支援的平台）                      |
+| 元件                               | 版本                                                                                |
+| ---------------------------------- | ----------------------------------------------------------------------------------- |
+| [Cavalry](https://cavalry.studio/) | **2.7 以上**（自 2.7 起個人使用免費，包含腳本功能）                                 |
+| [Node.js](https://nodejs.org/)     | **建議 22 LTS**。伺服器在 18.17 以上就能執行，但 `npm test` 和 lint 需要 22.12 以上 |
+| MCP 用戶端                         | Claude Desktop、Claude Code、Cursor，或任何支援 stdio 的 MCP 用戶端                 |
+| 作業系統                           | macOS 12+ 或 Windows 10+（Cavalry 支援的平台）                                      |
 
 > Cavalry 2.6.1 以前的版本，只有付費的 _Professional_ 授權才能執行未加密的腳本，而本專案的橋接器就是未加密的腳本。請使用 Cavalry 2.7 以上版本。
 

@@ -62,12 +62,12 @@ The wire protocol is documented in [docs/protocol.md](docs/protocol.md).
 
 ## Requirements
 
-| Component                          | Version                                                               |
-| ---------------------------------- | --------------------------------------------------------------------- |
-| [Cavalry](https://cavalry.studio/) | **2.7 or later** (free for individuals since 2.7, scripting included) |
-| [Node.js](https://nodejs.org/)     | **18.17 or later** (20 LTS or newer recommended)                      |
-| MCP client                         | Claude Desktop, Claude Code, Cursor, or any stdio MCP client          |
-| OS                                 | macOS 12+ or Windows 10+ (the platforms Cavalry supports)             |
+| Component                          | Version                                                                                |
+| ---------------------------------- | -------------------------------------------------------------------------------------- |
+| [Cavalry](https://cavalry.studio/) | **2.7 or later** (free for individuals since 2.7, scripting included)                  |
+| [Node.js](https://nodejs.org/)     | **22 LTS recommended**. The server runs on 18.17+, but `npm test` and lint need 22.12+ |
+| MCP client                         | Claude Desktop, Claude Code, Cursor, or any stdio MCP client                           |
+| OS                                 | macOS 12+ or Windows 10+ (the platforms Cavalry supports)                              |
 
 > Cavalry 2.6.1 and earlier only let paid _Professional_ licences run unencrypted scripts, and the bridge is an unencrypted script. Use Cavalry 2.7+.
 

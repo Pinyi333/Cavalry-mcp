@@ -173,40 +173,57 @@ claude mcp add cavalry -- node /ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js
 
 讓效果更好的小技巧：
 
+- 寫入時如果出現 _「has no attribute」_，代表屬性路徑錯了。Cavalry 遇到錯誤路徑原本會直接忽略、不報錯，所以伺服器會先檢查每個路徑。請用 `cavalry_list_attributes` 查正確的路徑。2D 旋轉請用 `rotation.z`。
 - 做完大改動後，請 AI **輸出一張 PNG 來檢查**。能讀取本機檔案的用戶端（例如 Claude Code）可以自己看圖驗證。
 - 屬性路徑和 Cavalry 的 **Copy Scripting Path**（在 Attribute Editor 對屬性按右鍵）一致，例如 `position.x`、`generator.dimensions`。
 - 步驟很多的建構工作，AI 可以用 `cavalry_batch` 一次送出全部操作，減少來回次數。
 
 ## 工具一覽
 
-| 工具                                     | 用途                                                                    | 類型         |
-| ---------------------------------------- | ----------------------------------------------------------------------- | ------------ |
-| `cavalry_ping`                           | 檢查連線和版本                                                          | 唯讀         |
-| `cavalry_scene_info`                     | 場景路徑、未儲存狀態、目前影格、合成清單、目前合成的設定                | 唯讀         |
-| `cavalry_set_frame`                      | 移動播放頭                                                              | 編輯         |
-| `cavalry_playback`                       | 播放／停止                                                              | 編輯         |
-| `cavalry_list_layers`                    | 列出圖層（可只列頂層或依類型篩選）                                      | 唯讀         |
-| `cavalry_get_selection`                  | 取得目前選取的圖層                                                      | 唯讀         |
-| `cavalry_select`                         | 取代目前的選取                                                          | 編輯         |
-| `cavalry_create_primitive`               | 建立矩形、橢圓、星形、多邊形等，可同時設定屬性                          | 建立         |
-| `cavalry_create_layer`                   | 建立任意類型圖層（文字、null、群組、duplicator、材質…）                 | 建立         |
-| `cavalry_duplicate_layer`                | 複製圖層，回傳新圖層的 id                                               | 建立         |
-| `cavalry_rename_layer`                   | 重新命名圖層                                                            | 編輯         |
-| `cavalry_set_parent`                     | 設定或解除父層                                                          | 編輯         |
-| `cavalry_delete_layers`                  | 刪除圖層                                                                | 破壞性       |
-| `cavalry_list_attributes`                | 列出屬性路徑（可附上資料型別）                                          | 唯讀         |
-| `cavalry_get_attributes`                 | 讀取屬性值                                                              | 唯讀         |
-| `cavalry_set_attributes`                 | 設定屬性值                                                              | 編輯         |
-| `cavalry_set_generator`                  | 更換圖層的 generator                                                    | 編輯         |
-| `cavalry_set_expression`                 | 設定或清除屬性的 expression                                             | 編輯         |
-| `cavalry_connect` / `cavalry_disconnect` | 連接或中斷屬性之間的連線                                                | 編輯／破壞性 |
-| `cavalry_set_keyframes`                  | 為一個或多個屬性加上關鍵影格，可套用 Magic Easing                       | 編輯         |
-| `cavalry_delete_keyframes`               | 刪除特定關鍵影格，或刪除屬性上的所有動畫                                | 破壞性       |
-| `cavalry_render_png`                     | 把某一格輸出成 PNG                                                      | 建立         |
-| `cavalry_save_scene`                     | 儲存／另存新檔                                                          | 編輯         |
-| `cavalry_open_scene`                     | 開啟 `.cv` 檔                                                           | 破壞性       |
-| `cavalry_batch`                          | 一次執行多個操作（遇錯即停，已完成的操作不會還原）                      | 破壞性       |
-| `cavalry_run_script`                     | 在 Cavalry 內執行任意 JavaScript（**需手動開啟**，見[安全性](#安全性)） | 破壞性       |
+| 工具                                     | 用途                                                                         | 類型         |
+| ---------------------------------------- | ---------------------------------------------------------------------------- | ------------ |
+| `cavalry_ping`                           | 檢查連線和版本                                                               | 唯讀         |
+| `cavalry_scene_info`                     | 場景路徑、未儲存狀態、目前影格、合成清單、目前合成的設定                     | 唯讀         |
+| `cavalry_set_frame`                      | 移動播放頭                                                                   | 編輯         |
+| `cavalry_playback`                       | 播放／停止                                                                   | 編輯         |
+| `cavalry_list_layers`                    | 列出圖層（可只列頂層或依類型篩選）                                           | 唯讀         |
+| `cavalry_get_selection`                  | 取得目前選取的圖層                                                           | 唯讀         |
+| `cavalry_select`                         | 取代目前的選取                                                               | 編輯         |
+| `cavalry_create_primitive`               | 建立矩形、橢圓、星形、多邊形等，可同時設定屬性                               | 建立         |
+| `cavalry_create_layer`                   | 建立任意類型圖層（文字、null、群組、duplicator、材質…）                      | 建立         |
+| `cavalry_duplicate_layer`                | 複製圖層，回傳新圖層的 id                                                    | 建立         |
+| `cavalry_rename_layer`                   | 重新命名圖層                                                                 | 編輯         |
+| `cavalry_set_parent`                     | 設定或解除父層                                                               | 編輯         |
+| `cavalry_delete_layers`                  | 刪除圖層                                                                     | 破壞性       |
+| `cavalry_list_attributes`                | 列出屬性路徑（可附上資料型別和目前的值）                                     | 唯讀         |
+| `cavalry_get_attributes`                 | 讀取屬性值                                                                   | 唯讀         |
+| `cavalry_set_attributes`                 | 設定屬性值（寫入前會先檢查路徑）                                             | 編輯         |
+| `cavalry_get_bounding_box`               | 取得圖層邊界框，用於排版和對齊                                               | 唯讀         |
+| `cavalry_inspect_connections`            | 查看圖層的輸入／輸出連線                                                     | 唯讀         |
+| `cavalry_add_dynamic_attribute`          | 新增動態屬性（例如 JavaScript 圖層）                                         | 建立         |
+| `cavalry_set_generator`                  | 更換圖層的 generator                                                         | 編輯         |
+| `cavalry_set_expression`                 | 設定或清除屬性的 expression                                                  | 編輯         |
+| `cavalry_connect` / `cavalry_disconnect` | 連接或中斷屬性之間的連線                                                     | 編輯／破壞性 |
+| `cavalry_set_keyframes`                  | 為一個或多個屬性加上關鍵影格，可套用 Magic Easing                            | 編輯         |
+| `cavalry_delete_keyframes`               | 刪除特定關鍵影格，或刪除屬性上的所有動畫                                     | 破壞性       |
+| `cavalry_render_png`                     | 把某一格輸出成 PNG                                                           | 建立         |
+| `cavalry_save_scene`                     | 儲存／另存新檔                                                               | 編輯         |
+| `cavalry_open_scene`                     | 開啟 `.cv` 檔                                                                | 破壞性       |
+| `cavalry_batch`                          | 一次執行多個操作，可用 `$0` 引用前面的結果（遇錯即停，已完成的操作不會還原） | 破壞性       |
+| `cavalry_run_script`                     | 在 Cavalry 內執行任意 JavaScript（**需手動開啟**，見[安全性](#安全性)）      | 破壞性       |
+
+**Resource：** `cavalry://guide/attributes` 是內建的參考指南，整理了常用圖層類型、屬性路徑（`rotation.z`、`shapeScale.x`、`startFrame`…）、Magic Easing 名稱和常見陷阱。支援 MCP resources 的用戶端可以把它附加為參考資料。
+
+**批次引用：** `cavalry_batch` 裡後面的操作可以使用前面操作的結果。`"$0"` 代表第 0 個操作建立的 id，`"$1.created.0.id"` 則可以取出結果裡更深層的值：
+
+```json
+[
+  { "op": "create_primitive", "args": { "shape": "ellipse", "attributes": { "hidden": true } } },
+  { "op": "create_layer", "args": { "type": "duplicator" } },
+  { "op": "connect", "args": { "fromLayerId": "$0", "toLayerId": "$1", "toAttrId": "shapes" } },
+  { "op": "set_generator", "args": { "layerId": "$1", "type": "circleDistribution" } }
+]
+```
 
 **Magic Easing 名稱：** `SlowIn`、`SlowOut`、`SlowInSlowOut`、`VerySlowIn`、`VerySlowOut`、`VerySlowInVerySlowOut`、`SpringIn`、`SpringOut`、`SpringInSpringOut`、`SmallSpringIn`、`SmallSpringOut`、`SmallSpringInSmallSpringOut`、`AnticipateIn`、`OvershootOut`、`AnticipateInOvershootOut`、`BounceIn`、`BounceOut`、`BounceInBounceOut`、`Custom`（搭配 expression，例如 `1 - pow(1 - x, 5)`）、`None`。
 
@@ -214,13 +231,14 @@ claude mcp add cavalry -- node /ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js
 
 伺服器會讀取以下環境變數，全部都可以不設。
 
-| 變數                           | 預設值      | 說明                                                        |
-| ------------------------------ | ----------- | ----------------------------------------------------------- |
-| `CAVALRY_MCP_HOST`             | `127.0.0.1` | 橋接器監聽的主機，請保持在本機 loopback。                   |
-| `CAVALRY_MCP_PORT`             | `37650`     | 必須和橋接器腳本裡的 `CONFIG.port` 一致。                   |
-| `CAVALRY_MCP_TIMEOUT_MS`       | `15000`     | 單一操作的最長等待時間。輸出較重的畫面時可以調高。          |
-| `CAVALRY_MCP_POLL_INTERVAL_MS` | `40`        | 伺服器向橋接器輪詢結果的間隔。                              |
-| `CAVALRY_MCP_ALLOW_SCRIPT`     | `false`     | 開啟後會註冊 `cavalry_run_script`。橋接器端也必須同時允許。 |
+| 變數                           | 預設值      | 說明                                                                                                                                |
+| ------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `CAVALRY_MCP_HOST`             | `127.0.0.1` | 橋接器監聽的主機，請保持在本機 loopback。                                                                                           |
+| `CAVALRY_MCP_PORT`             | `37650`     | 必須和橋接器腳本裡的 `CONFIG.port` 一致。                                                                                           |
+| `CAVALRY_MCP_TIMEOUT_MS`       | `15000`     | 單一操作的最長等待時間。輸出較重的畫面時可以調高。                                                                                  |
+| `CAVALRY_MCP_POLL_INTERVAL_MS` | `40`        | 伺服器向橋接器輪詢結果的間隔。                                                                                                      |
+| `CAVALRY_MCP_FROZEN_MS`        | `5000`      | Cavalry 超過這段時間都沒處理請求時，立即回報 `BridgeFrozenError`（設為 `0` 可停用）。輸出畫面、儲存、開啟場景和批次操作不受此限制。 |
+| `CAVALRY_MCP_ALLOW_SCRIPT`     | `false`     | 開啟後會註冊 `cavalry_run_script`。橋接器端也必須同時允許。                                                                         |
 
 在用戶端設定檔裡這樣傳入：
 
@@ -249,14 +267,15 @@ claude mcp add cavalry -- node /ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js
 
 ## 疑難排解
 
-| 狀況                                                      | 解法                                                                                                           |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `BridgeUnavailableError: Cannot reach the Cavalry bridge` | Cavalry 沒開，或橋接器面板沒啟動。請執行 **Window > Scripts > cavalry-mcp-bridge**，並確認兩端連接埠一致。     |
-| `BridgeTimeoutError`                                      | 讓 Cavalry **保持在前景**，視窗在背景時腳本回呼會暫停。輸出時間較長的畫面時，請調高 `CAVALRY_MCP_TIMEOUT_MS`。 |
-| `BridgeProtocolError: ... not the cavalry-mcp bridge`     | 連接埠被其他程式占用。把 `CONFIG.port` 和 `CAVALRY_MCP_PORT` 改成同一個空閒的連接埠。                          |
-| `Bridge protocol mismatch`                                | 把和伺服器同一版本的 `cavalry-mcp-bridge.js` 重新複製到 Cavalry。                                              |
-| `Layer '…' does not exist`                                | 刪除圖層或重開場景後，圖層 id 會改變。請 AI 重新呼叫 `cavalry_list_layers`。                                   |
-| Claude 裡看不到工具                                       | 確認設定檔裡的路徑是絕對路徑，而且 `dist/index.js` 存在（可執行 `npm run build`），然後重啟用戶端。            |
+| 狀況                                                      | 解法                                                                                                       |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `BridgeUnavailableError: Cannot reach the Cavalry bridge` | Cavalry 沒開，或橋接器面板沒啟動。請執行 **Window > Scripts > cavalry-mcp-bridge**，並確認兩端連接埠一致。 |
+| `BridgeFrozenError`                                       | Cavalry 在背景，或有對話框開著。請把 Cavalry 切到前景，請求仍在佇列中，Cavalry 恢復後就會執行。            |
+| `BridgeTimeoutError`                                      | 操作花的時間太久。輸出時間較長的畫面時，請調高 `CAVALRY_MCP_TIMEOUT_MS`。                                  |
+| `BridgeProtocolError: ... not the cavalry-mcp bridge`     | 連接埠被其他程式占用。把 `CONFIG.port` 和 `CAVALRY_MCP_PORT` 改成同一個空閒的連接埠。                      |
+| `Bridge protocol mismatch`                                | 把和伺服器同一版本的 `cavalry-mcp-bridge.js` 重新複製到 Cavalry。                                          |
+| `Layer '…' does not exist`                                | 刪除圖層或重開場景後，圖層 id 會改變。請 AI 重新呼叫 `cavalry_list_layers`。                               |
+| Claude 裡看不到工具                                       | 確認設定檔裡的路徑是絕對路徑，而且 `dist/index.js` 存在（可執行 `npm run build`），然後重啟用戶端。        |
 
 不透過 AI 用戶端除錯時，可以用 MCP Inspector：
 
@@ -282,6 +301,7 @@ cavalry-mcp/
 │   ├── index.ts                   # CLI 進入點：讀取設定、建立 stdio 傳輸
 │   ├── server.ts                  # 在 MCP 伺服器上註冊工具
 │   ├── tools.ts                   # 宣告式工具清單（schema、annotations）
+│   ├── guide.ts                   # cavalry://guide/attributes 參考指南
 │   ├── bridge-client.ts           # HTTP POST 後輪詢的用戶端 + 有型別的錯誤類別
 │   └── config.ts                  # 解析環境變數
 ├── test/                          # 單元測試 + 使用模擬 Cavalry api 的端對端測試
@@ -302,6 +322,16 @@ cavalry-mcp/
 ## 參與貢獻
 
 歡迎提出 Issue 和 Pull Request，請先閱讀 [CONTRIBUTING.md](CONTRIBUTING.md)。自動化測試是在模擬的 Cavalry 上執行，所以來自實際 Cavalry 環境的回報特別有價值，請附上 Cavalry 版本、作業系統，以及失敗的工具呼叫內容。
+
+## 致謝
+
+本專案參考了以下社群專案的設計概念，特此致謝：
+
+- [ZHUYUFAN3-33/cavalry-mcp](https://github.com/ZHUYUFAN3-33/cavalry-mcp)：用有型別的工具取代直接執行程式碼、帶請求 id 的 POST 後輪詢協定、快速偵測「凍結」狀態、邊界框與連線檢查，以及社群驗證過的屬性路徑（已整理進屬性指南）。
+- [kacperchlebowicz/Cavalry-mcp](https://github.com/kacperchlebowicz/Cavalry-mcp)：動態屬性，以及圖層類型和屬性路徑的參考清單。
+- [matthewobanla/Calvary-MCP](https://github.com/matthewobanla/Calvary-MCP)：節點圖和算圖流程的工作方式（算圖佇列工具已列入未來規劃）。
+
+沒有複製任何程式碼，所有實作皆為原創。
 
 ## 授權
 

@@ -56,7 +56,7 @@ describe("bridge script", () => {
   it("describes the scene and active comp settings", () => {
     const info = post("scene_info").result as Record<string, unknown>;
     expect(info.activeComp).toBe("composition#1");
-    expect(info.activeCompSettings).toEqual({ resolution: [1920, 1080], frameRange: [0, 120], fps: 30 });
+    expect(info.activeCompSettings).toEqual({ resolution: [1920, 1080], startFrame: 0, endFrame: 120, fps: 30 });
     expect(info.sceneFilePath).toBeNull();
   });
 
@@ -178,5 +178,92 @@ describe("bridge script", () => {
 
   it("rejects nested batches", () => {
     expect(post("batch", { operations: [{ op: "batch", args: {} }] }).error).toMatch(/Nested batch/);
+  });
+
+  it("rejects unknown attribute paths instead of failing silently", () => {
+    post("create_primitive", { shape: "ellipse" });
+    expect(post("set_attributes", { layerId: "basicShape#1", attributes: { "positon.x": 1 } }).error).toMatch(
+      /has no attribute 'positon.x'.*list_attributes/,
+    );
+    expect(post("set_attributes", { layerId: "basicShape#1", attributes: { "position.x": 1 } }).ok).toBe(true);
+    expect(
+      post("set_attributes", { layerId: "basicShape#1", attributes: { "special.path": 1 }, skipValidation: true }).ok,
+    ).toBe(true);
+    expect(post("create_primitive", { shape: "star", attributes: { bogus: 1 } }).ok).toBe(false);
+    expect(post("set_keyframes", { layerId: "basicShape#1", keyframes: [{ frame: 0, values: { nope: 1 } }] }).ok).toBe(
+      false,
+    );
+  });
+
+  it("lists attributes with values", () => {
+    post("create_primitive", { shape: "ellipse" });
+    const res = post("list_attributes", { layerId: "basicShape#1", includeValues: true }).result as {
+      attributes: Array<{ id: string; value: unknown }>;
+    };
+    expect(res.attributes).toContainEqual({ id: "opacity", value: 100 });
+  });
+
+  it("returns bounding boxes and connections", () => {
+    post("create_primitive", { shape: "ellipse" });
+    post("create_layer", { type: "duplicator" });
+    post("connect", { fromLayerId: "basicShape#1", toLayerId: "duplicator#1", toAttrId: "shapes" });
+    expect(post("get_bounding_box", { layerId: "basicShape#1" }).result).toMatchObject({
+      boundingBox: { width: 100, height: 100 },
+    });
+    expect(post("inspect_connections", { layerId: "duplicator#1" }).result).toEqual({
+      layerId: "duplicator#1",
+      inputs: [{ attrId: "shapes", from: "basicShape#1.id" }],
+      outputs: [],
+    });
+  });
+
+  it("adds dynamic attributes", () => {
+    post("create_layer", { type: "javaScript" });
+    expect(post("add_dynamic_attribute", { layerId: "javaScript#1", type: "double" }).result).toMatchObject({
+      arrayCount: 1,
+    });
+  });
+
+  it("resolves $-references to earlier batch results", () => {
+    const res = post("batch", {
+      operations: [
+        { op: "create_primitive", args: { shape: "ellipse", name: "Dot" } },
+        { op: "create_layer", args: { type: "duplicator" } },
+        { op: "connect", args: { fromLayerId: "$0", toLayerId: "$1.id", toAttrId: "shapes" } },
+        { op: "rename_layer", args: { layerId: "$0", name: "Dot source" } },
+      ],
+    });
+    expect(res.ok).toBe(true);
+    expect(api.connections).toEqual([{ from: "basicShape#1", fromAttr: "id", to: "duplicator#1", toAttr: "shapes" }]);
+    expect(api.getNiceName("basicShape#1")).toBe("Dot source");
+  });
+
+  it("rejects forward or unresolvable batch references", () => {
+    expect(post("batch", { operations: [{ op: "rename_layer", args: { layerId: "$1", name: "x" } }] }).error).toMatch(
+      /has not run yet/,
+    );
+    expect(
+      post("batch", {
+        operations: [
+          { op: "create_primitive", args: { shape: "ellipse" } },
+          { op: "rename_layer", args: { layerId: "$0.nope", name: "x" } },
+        ],
+      }).error,
+    ).toMatch(/could not be resolved/);
+  });
+
+  it("treats hostile strings as plain data, never as code", () => {
+    const payloads = ["`${api.deleteLayer('x')}`", '"); api.newScene(); ("', "</script><script>", "a\u2028b\u2029c"];
+    for (const name of payloads) {
+      const res = post("create_primitive", { shape: "ellipse", name });
+      expect(res.ok).toBe(true);
+      expect((res.result as { name: string }).name).toBe(name);
+    }
+  });
+
+  it("counts processed requests in the snapshot", () => {
+    post("ping", {}, "a");
+    post("nope", {}, "b");
+    expect(JSON.parse(bridge.snapshot()).processed).toBe(2);
   });
 });

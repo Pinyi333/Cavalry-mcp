@@ -8,6 +8,8 @@ export interface Config {
   timeoutMs: number;
   /** Delay between polls of the bridge's /get endpoint. */
   pollIntervalMs: number;
+  /** Fail fast when the bridge processes nothing for this long (0 disables). */
+  frozenMs: number;
   /** Whether the `cavalry_run_script` tool is registered. */
   allowScript: boolean;
 }
@@ -17,6 +19,7 @@ export const DEFAULT_CONFIG: Config = {
   port: 37650,
   timeoutMs: 15_000,
   pollIntervalMs: 40,
+  frozenMs: 5_000,
   allowScript: false,
 };
 
@@ -61,6 +64,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       5,
       5_000,
     ),
+    frozenMs: parseInteger("CAVALRY_MCP_FROZEN_MS", env.CAVALRY_MCP_FROZEN_MS, DEFAULT_CONFIG.frozenMs, 0, 600_000),
     allowScript: parseBoolean("CAVALRY_MCP_ALLOW_SCRIPT", env.CAVALRY_MCP_ALLOW_SCRIPT, DEFAULT_CONFIG.allowScript),
   };
 }

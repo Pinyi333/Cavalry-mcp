@@ -67,7 +67,13 @@ describe("MCP server", () => {
     const cavalry = await startFakeCavalry();
     closers.push(cavalry.close);
     const client = await connect(
-      new CavalryBridgeClient({ host: "127.0.0.1", port: cavalry.port, timeoutMs: 2000, pollIntervalMs: 5 }),
+      new CavalryBridgeClient({
+        host: "127.0.0.1",
+        port: cavalry.port,
+        timeoutMs: 2000,
+        pollIntervalMs: 5,
+        frozenMs: 0,
+      }),
     );
 
     const created = await client.callTool({
@@ -94,10 +100,37 @@ describe("MCP server", () => {
     const cavalry = await startFakeCavalry();
     closers.push(cavalry.close);
     const client = await connect(
-      new CavalryBridgeClient({ host: "127.0.0.1", port: cavalry.port, timeoutMs: 2000, pollIntervalMs: 5 }),
+      new CavalryBridgeClient({
+        host: "127.0.0.1",
+        port: cavalry.port,
+        timeoutMs: 2000,
+        pollIntervalMs: 5,
+        frozenMs: 0,
+      }),
     );
     const result = await client.callTool({ name: "cavalry_rename_layer", arguments: { layerId: "x#1", name: "y" } });
     expect(result.isError).toBe(true);
     expect(text(result)).toBe("BridgeOperationError: Layer 'x#1' does not exist.");
+  });
+
+  it("serves the attribute guide resource", async () => {
+    const client = await connect(stubBridge());
+    const { resources } = await client.listResources();
+    expect(resources.map((r) => r.uri)).toContain("cavalry://guide/attributes");
+    const read = await client.readResource({ uri: "cavalry://guide/attributes" });
+    expect((read.contents[0] as { text: string }).text).toContain("rotation.z");
+  });
+
+  it("disables frozen detection only for long-running tools", async () => {
+    const seen: Record<string, boolean | undefined> = {};
+    const client = await connect({
+      call: async <T>(op: string, _args?: Record<string, unknown>, options?: { detectFrozen?: boolean }) => {
+        seen[op] = options?.detectFrozen;
+        return {} as T;
+      },
+    });
+    await client.callTool({ name: "cavalry_ping", arguments: {} });
+    await client.callTool({ name: "cavalry_render_png", arguments: { filePath: "/tmp/x" } });
+    expect(seen).toEqual({ ping: true, render_png: false });
   });
 });

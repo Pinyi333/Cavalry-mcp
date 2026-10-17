@@ -14,6 +14,8 @@ export interface ToolDefinition {
   annotations: ToolAnnotations;
   /** Only registered when CAVALRY_MCP_ALLOW_SCRIPT is enabled. */
   requiresScript?: boolean;
+  /** May block Cavalry for a long time, so frozen detection is skipped (only the timeout applies). */
+  longRunning?: boolean;
 }
 
 const layerId = z
@@ -25,7 +27,7 @@ const attrId = z.string().min(1).describe('Attribute path, e.g. "position.x", "r
 const attributeValues = z
   .record(z.string(), z.unknown())
   .describe(
-    'Map of attribute path to value, e.g. {"position": [100, 200], "rotation": 45, "material.materialColor": "#ff4d00"}.',
+    'Map of attribute path to value, e.g. {"position": [100, 200], "rotation.z": 45, "material.materialColor": "#ff4d00"}.',
   );
 
 const READ_ONLY: ToolAnnotations = { readOnlyHint: true, openWorldHint: false };
@@ -85,6 +87,9 @@ const BATCHABLE_OPS = [
   "set_attributes",
   "get_attributes",
   "list_attributes",
+  "get_bounding_box",
+  "inspect_connections",
+  "add_dynamic_attribute",
   "set_generator",
   "connect",
   "disconnect",
@@ -235,6 +240,7 @@ export const TOOLS: ToolDefinition[] = [
     inputSchema: {
       layerId,
       includeTypes: z.boolean().optional().describe("Include each attribute's data type. Defaults to false."),
+      includeValues: z.boolean().optional().describe("Include each attribute's current value. Defaults to false."),
     },
     annotations: READ_ONLY,
   },
@@ -249,10 +255,54 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "cavalry_set_attributes",
     title: "Set attributes",
-    description: "Set one or more attribute values on a layer at the current frame (does not create keyframes).",
+    description:
+      "Set one or more attribute values on a layer at the current frame (does not create keyframes). Every path is " +
+      'checked first, because Cavalry silently ignores writes to unknown paths. In 2D, rotate with "rotation.z".',
     op: "set_attributes",
-    inputSchema: { layerId, attributes: attributeValues },
+    inputSchema: {
+      layerId,
+      attributes: attributeValues,
+      skipValidation: z
+        .boolean()
+        .optional()
+        .describe("Skip the attribute-path check (only for paths the check wrongly rejects). Defaults to false."),
+    },
     annotations: EDIT,
+  },
+  {
+    name: "cavalry_get_bounding_box",
+    title: "Get bounding box",
+    description:
+      "Return a layer's bounding box (x, y, width, height, centre, left/right/top/bottom). Use it to lay out, align " +
+      "and check that layers fit inside the composition.",
+    op: "get_bounding_box",
+    inputSchema: {
+      layerId,
+      worldSpace: z.boolean().optional().describe("World-space coordinates. Defaults to true."),
+    },
+    annotations: READ_ONLY,
+  },
+  {
+    name: "cavalry_inspect_connections",
+    title: "Inspect connections",
+    description: "List a layer's incoming and outgoing attribute connections, to understand an existing node graph.",
+    op: "inspect_connections",
+    inputSchema: { layerId },
+    annotations: READ_ONLY,
+  },
+  {
+    name: "cavalry_add_dynamic_attribute",
+    title: "Add dynamic attribute",
+    description:
+      "Add a dynamic attribute to layers that support them (e.g. JavaScript layers). Returns the new array count; " +
+      "use cavalry_list_attributes to find the new attribute path.",
+    op: "add_dynamic_attribute",
+    inputSchema: {
+      layerId,
+      type: z.string().min(1).describe('Attribute type, e.g. "double", "int", "bool", "string", "double2", "color".'),
+      attrId: z.string().optional().describe('Dynamic array attribute. Defaults to "array".'),
+    },
+    annotations: CREATE,
   },
   {
     name: "cavalry_set_generator",
@@ -354,6 +404,7 @@ export const TOOLS: ToolDefinition[] = [
       "Render the active composition to a PNG file on the local machine (useful for checking your work visually). " +
       "Use an absolute path; the .png extension is added automatically.",
     op: "render_png",
+    longRunning: true,
     inputSchema: {
       filePath: z.string().min(1).describe("Absolute output path, with or without .png."),
       frame: z.number().int().optional().describe("Frame to render. Defaults to the current frame."),
@@ -366,6 +417,7 @@ export const TOOLS: ToolDefinition[] = [
     title: "Save scene",
     description: "Save the scene in place, or to a new .cv path when filePath is given.",
     op: "save_scene",
+    longRunning: true,
     inputSchema: {
       filePath: z.string().optional().describe("Absolute .cv path for Save As. Omit to save in place."),
     },
@@ -377,6 +429,7 @@ export const TOOLS: ToolDefinition[] = [
     description:
       "Open a .cv scene file. Unless force is true, Cavalry may ask the user about unsaved changes in the current scene.",
     op: "open_scene",
+    longRunning: true,
     inputSchema: {
       filePath: z.string().min(1).describe("Absolute path to a .cv file."),
       force: z.boolean().optional().describe("Discard unsaved changes without asking. Defaults to false."),
@@ -390,9 +443,12 @@ export const TOOLS: ToolDefinition[] = [
     title: "Batch operations",
     description:
       "Run several operations in one round-trip, in order. Stops at the first failure; earlier operations are NOT " +
-      'rolled back. Each item is {"op": "<operation>", "args": {...}} where op is a bridge operation name ' +
-      '(the tool name without the "cavalry_" prefix, e.g. "create_primitive", "set_keyframes").',
+      'rolled back. Each item is {"op": "<operation>", "args": {...}} where op is the tool name without the ' +
+      '"cavalry_" prefix. Reference earlier results with "$<index>" strings: "$0" is the id created by operation 0, ' +
+      '"$2.created.0.id" walks into a result. Example: [{"op": "create_primitive", "args": {"shape": "ellipse"}}, ' +
+      '{"op": "set_keyframes", "args": {"layerId": "$0", "keyframes": [...]}}].',
     op: "batch",
+    longRunning: true,
     inputSchema: {
       operations: z
         .array(
@@ -413,6 +469,7 @@ export const TOOLS: ToolDefinition[] = [
       "Run arbitrary JavaScript inside Cavalry's JavaScript Editor context. The code receives `api` and may `return` " +
       "a JSON-serialisable value. Prefer the typed tools; use this only when none of them fits.",
     op: "run_script",
+    longRunning: true,
     inputSchema: { code: z.string().min(1).describe("Function body to execute, e.g. 'return api.getComps();'.") },
     annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
     requiresScript: true,

@@ -34,9 +34,11 @@ var CavalryMcpBridge = (function () {
   var BRIDGE_NAME = "cavalry-mcp";
   var BRIDGE_VERSION = "0.1.0";
   var PROTOCOL_VERSION = 1;
-  var COMP_SETTING_CANDIDATES = ["resolution", "frameRange", "fps", "backgroundColor"];
+  var COMP_SETTING_CANDIDATES = ["resolution", "startFrame", "endFrame", "fps", "backgroundColor"];
+  var BATCH_REFERENCE = /^\$(\d+)((?:\.[A-Za-z0-9_]+)*)$/;
 
   var results = {};
+  var processed = 0;
   var resultOrder = [];
 
   // -------------------------------------------------------------------------
@@ -99,6 +101,67 @@ var CavalryMcpBridge = (function () {
       type: api.getLayerType(layerId),
       parent: parent ? parent : null,
     };
+  }
+
+  /**
+   * Cavalry silently ignores writes to attribute paths that do not exist, so
+   * check every path first. Child paths such as "position.x" are accepted when
+   * either the full path or its root attribute exists.
+   */
+  function requireAttributes(layerId, attributes) {
+    Object.keys(attributes).forEach(function (attrId) {
+      var root = attrId.split(".")[0];
+      if (!api.hasAttribute(layerId, attrId) && !api.hasAttribute(layerId, root)) {
+        fail(
+          "Layer '" +
+            layerId +
+            "' has no attribute '" +
+            attrId +
+            "'. Call list_attributes to see valid attribute paths.",
+        );
+      }
+    });
+    return attributes;
+  }
+
+  function applyAttributes(layerId, args) {
+    if (args.attributes) {
+      api.set(layerId, requireAttributes(layerId, requireObject(args, "attributes")));
+    }
+  }
+
+  /** Replaces "$<index>[.path]" strings with values from earlier batch results ("$0" means "$0.id"). */
+  function resolveReferences(value, previous) {
+    if (typeof value === "string") {
+      var match = BATCH_REFERENCE.exec(value);
+      if (!match) return value;
+      var index = Number(match[1]);
+      if (index >= previous.length) {
+        fail("Reference '" + value + "' points at an operation that has not run yet.");
+      }
+      var path = match[2] ? match[2].slice(1).split(".") : ["id"];
+      var resolved = previous[index];
+      for (var i = 0; i < path.length; i++) {
+        if (resolved === null || typeof resolved !== "object" || !(path[i] in resolved)) {
+          fail("Reference '" + value + "' could not be resolved.");
+        }
+        resolved = resolved[path[i]];
+      }
+      return resolved;
+    }
+    if (Array.isArray(value)) {
+      return value.map(function (item) {
+        return resolveReferences(item, previous);
+      });
+    }
+    if (value !== null && typeof value === "object") {
+      var out = {};
+      Object.keys(value).forEach(function (key) {
+        out[key] = resolveReferences(value[key], previous);
+      });
+      return out;
+    }
+    return value;
   }
 
   function stripPngExtension(filePath) {
@@ -172,9 +235,7 @@ var CavalryMcpBridge = (function () {
       if (!layerId || !api.layerExists(layerId)) {
         fail("Cavalry could not create a layer of type '" + type + "'.");
       }
-      if (args.attributes) {
-        api.set(layerId, requireObject(args, "attributes"));
-      }
+      applyAttributes(layerId, args);
       return describeLayer(layerId);
     },
 
@@ -185,9 +246,7 @@ var CavalryMcpBridge = (function () {
       if (!layerId || !api.layerExists(layerId)) {
         fail("Cavalry could not create a primitive of shape '" + shape + "'.");
       }
-      if (args.attributes) {
-        api.set(layerId, requireObject(args, "attributes"));
-      }
+      applyAttributes(layerId, args);
       return describeLayer(layerId);
     },
 
@@ -238,6 +297,7 @@ var CavalryMcpBridge = (function () {
     set_attributes: function (args) {
       var layerId = requireLayer(requireString(args, "layerId"));
       var attributes = requireObject(args, "attributes");
+      if (args.skipValidation !== true) requireAttributes(layerId, attributes);
       api.set(layerId, attributes);
       return { layerId: layerId, updated: Object.keys(attributes) };
     },
@@ -258,15 +318,42 @@ var CavalryMcpBridge = (function () {
     list_attributes: function (args) {
       var layerId = requireLayer(requireString(args, "layerId"));
       var attrIds = api.getAttributes(layerId);
-      if (args.includeTypes !== true) {
+      if (args.includeTypes !== true && args.includeValues !== true) {
         return { layerId: layerId, attributes: attrIds };
       }
       return {
         layerId: layerId,
         attributes: attrIds.map(function (attrId) {
-          return { id: attrId, type: api.getAttrType(layerId, attrId) };
+          var entry = { id: attrId };
+          if (args.includeTypes === true) entry.type = api.getAttrType(layerId, attrId);
+          if (args.includeValues === true) entry.value = api.get(layerId, attrId);
+          return entry;
         }),
       };
+    },
+
+    get_bounding_box: function (args) {
+      var layerId = requireLayer(requireString(args, "layerId"));
+      return { layerId: layerId, boundingBox: api.getBoundingBox(layerId, args.worldSpace !== false) };
+    },
+
+    inspect_connections: function (args) {
+      var layerId = requireLayer(requireString(args, "layerId"));
+      var inputs = api.getInConnectedAttributes(layerId).map(function (attrId) {
+        return { attrId: attrId, from: api.getInConnection(layerId, attrId) };
+      });
+      var outputs = api.getOutConnectedAttributes(layerId).map(function (attrId) {
+        return { attrId: attrId, to: api.getOutConnections(layerId, attrId) };
+      });
+      return { layerId: layerId, inputs: inputs, outputs: outputs };
+    },
+
+    add_dynamic_attribute: function (args) {
+      var layerId = requireLayer(requireString(args, "layerId"));
+      var attrId = typeof args.attrId === "string" ? args.attrId : "array";
+      var type = requireString(args, "type");
+      api.addDynamic(layerId, attrId, type);
+      return { layerId: layerId, attrId: attrId, type: type, arrayCount: api.getArrayCount(layerId, attrId) };
     },
 
     set_generator: function (args) {
@@ -303,7 +390,7 @@ var CavalryMcpBridge = (function () {
       }
       var created = keyframes.map(function (kf) {
         var frame = requireNumber(kf, "frame");
-        var values = requireObject(kf, "values");
+        var values = requireAttributes(layerId, requireObject(kf, "values"));
         var keyframeId = api.keyframe(layerId, frame, values);
         if (typeof kf.easing === "string" && kf.easing.length > 0) {
           var expression = typeof kf.expression === "string" ? kf.expression : "";
@@ -414,7 +501,7 @@ var CavalryMcpBridge = (function () {
           fail("Nested batch operations are not allowed (operation " + i + ").");
         }
         try {
-          out.push(execute(item.op, item.args || {}));
+          out.push(execute(item.op, resolveReferences(item.args || {}, out)));
         } catch (err) {
           fail("Operation " + i + " (" + item.op + ") failed: " + messageOf(err));
         }
@@ -470,6 +557,7 @@ var CavalryMcpBridge = (function () {
     } catch (err) {
       payload = { ok: false, error: messageOf(err) };
     }
+    processed += 1;
     storeResult(request.id, payload);
     return payload;
   }
@@ -479,6 +567,7 @@ var CavalryMcpBridge = (function () {
       bridge: BRIDGE_NAME,
       bridgeVersion: BRIDGE_VERSION,
       protocol: PROTOCOL_VERSION,
+      processed: processed,
       results: results,
     });
   }

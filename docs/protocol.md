@@ -38,6 +38,7 @@ After processing, the bridge republishes a snapshot for `GET /get`:
   "bridge": "cavalry-mcp",
   "bridgeVersion": "0.1.0",
   "protocol": 1,
+  "processed": 42,
   "results": {
     "1f0e2c1a-…": {
       "ok": true,
@@ -48,6 +49,8 @@ After processing, the bridge republishes a snapshot for `GET /get`:
 }
 ```
 
+- `processed` counts every request the bridge has handled. If it stops increasing while a request is pending, Cavalry
+  is not running callbacks (backgrounded or blocked), and the client can fail fast instead of waiting for the timeout.
 - `results` keeps the most recent `CONFIG.maxResults` entries (default 64), oldest evicted first.
 - Clients poll `/get` until their `id` appears, then stop. A client must not assume ordering between different ids.
 - `bridge` must equal `"cavalry-mcp"` and `protocol` must equal the client's protocol version. Otherwise the client
@@ -68,9 +71,12 @@ After processing, the bridge republishes a snapshot for `GET /get`:
 | `duplicate_layer`        | `layerId`                                                              | `withInputConnections`                              |
 | `rename_layer`           | `layerId`, `name`                                                      | —                                                   |
 | `set_parent`             | `layerId`, `parentId` (string or null)                                 | —                                                   |
-| `set_attributes`         | `layerId`, `attributes`                                                | —                                                   |
+| `set_attributes`         | `layerId`, `attributes`                                                | `skipValidation`                                    |
 | `get_attributes`         | `layerId`, `attrIds`                                                   | —                                                   |
-| `list_attributes`        | `layerId`                                                              | `includeTypes`                                      |
+| `list_attributes`        | `layerId`                                                              | `includeTypes`, `includeValues`                     |
+| `get_bounding_box`       | `layerId`                                                              | `worldSpace` (default true)                         |
+| `inspect_connections`    | `layerId`                                                              | —                                                   |
+| `add_dynamic_attribute`  | `layerId`, `type`                                                      | `attrId` (default `array`)                          |
 | `set_generator`          | `layerId`, `type`                                                      | `attrId` (default `generator`)                      |
 | `connect` / `disconnect` | `fromLayerId`, `toLayerId`, `toAttrId`                                 | `fromAttrId` (default `id`), `force` (connect only) |
 | `set_keyframes`          | `layerId`, `keyframes[]` (`frame`, `values`, `easing?`, `expression?`) | —                                                   |
@@ -83,6 +89,18 @@ After processing, the bridge republishes a snapshot for `GET /get`:
 | `open_scene`             | `filePath`                                                             | `force`                                             |
 | `run_script`             | `code`                                                                 | — (requires `CONFIG.allowScript = true`)            |
 | `batch`                  | `operations[]` (`op`, `args`)                                          | — (no nesting, fail-fast, not atomic)               |
+
+### Attribute validation
+
+`create_layer`, `create_primitive`, `set_attributes` and `set_keyframes` reject attribute paths that do not exist on the
+layer, because Cavalry silently ignores such writes. A path passes if either the full path (`position.x`) or its root
+(`position`) exists. `set_attributes` accepts `skipValidation: true` as an escape hatch.
+
+### Batch references
+
+Inside `batch`, any string argument of the form `$<index>[.<key>…]` is replaced by a value from the result of an
+earlier operation. `$0` is shorthand for `$0.id`. Referencing an operation that has not run yet, or a missing key, fails
+the batch.
 
 ## Versioning
 

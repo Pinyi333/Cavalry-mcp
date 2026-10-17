@@ -173,40 +173,57 @@ Then ask your assistant: **"Ping Cavalry."** You should get the bridge and Caval
 
 Tips for good results:
 
+- If a write is rejected with _"has no attribute"_, the path is wrong. Cavalry would otherwise ignore it silently, so the server checks every path first. Use `cavalry_list_attributes` to find the right one. In 2D, rotate with `rotation.z`.
 - Ask the assistant to **render a PNG and look at it** after big changes. Clients that can read local files (such as Claude Code) can check their own work.
 - Attribute paths match Cavalry's **Copy Scripting Path** (right-click an attribute in the Attribute Editor), for example `position.x` or `generator.dimensions`.
 - For multi-step builds, the assistant can use `cavalry_batch` to do everything in one round-trip.
 
 ## Tool reference
 
-| Tool                                     | Purpose                                                                     | Kind               |
-| ---------------------------------------- | --------------------------------------------------------------------------- | ------------------ |
-| `cavalry_ping`                           | Check connectivity and versions                                             | read               |
-| `cavalry_scene_info`                     | Scene path, unsaved state, frame, comps, active comp settings               | read               |
-| `cavalry_set_frame`                      | Move the playhead                                                           | edit               |
-| `cavalry_playback`                       | Play / stop                                                                 | edit               |
-| `cavalry_list_layers`                    | List layers (optionally top-level only or by type)                          | read               |
-| `cavalry_get_selection`                  | Currently selected layers                                                   | read               |
-| `cavalry_select`                         | Replace the selection                                                       | edit               |
-| `cavalry_create_primitive`               | Create rectangle / ellipse / star / polygon… with attributes                | create             |
-| `cavalry_create_layer`                   | Create any layer type (text, null, group, duplicator, material…)            | create             |
-| `cavalry_duplicate_layer`                | Duplicate a layer, returning the new ids                                    | create             |
-| `cavalry_rename_layer`                   | Rename a layer                                                              | edit               |
-| `cavalry_set_parent`                     | Parent / un-parent a layer                                                  | edit               |
-| `cavalry_delete_layers`                  | Delete layers                                                               | destructive        |
-| `cavalry_list_attributes`                | List attribute paths (optionally with types)                                | read               |
-| `cavalry_get_attributes`                 | Read attribute values                                                       | read               |
-| `cavalry_set_attributes`                 | Set attribute values                                                        | edit               |
-| `cavalry_set_generator`                  | Swap a layer's generator                                                    | edit               |
-| `cavalry_set_expression`                 | Set / clear an attribute expression                                         | edit               |
-| `cavalry_connect` / `cavalry_disconnect` | Wire attributes together                                                    | edit / destructive |
-| `cavalry_set_keyframes`                  | Keyframe one or more attributes, with Magic Easing                          | edit               |
-| `cavalry_delete_keyframes`               | Delete keyframes or all animation on an attribute                           | destructive        |
-| `cavalry_render_png`                     | Render a frame to PNG                                                       | create             |
-| `cavalry_save_scene`                     | Save / Save As                                                              | edit               |
-| `cavalry_open_scene`                     | Open a `.cv` file                                                           | destructive        |
-| `cavalry_batch`                          | Run many operations in one round-trip (fail-fast, not atomic)               | destructive        |
-| `cavalry_run_script`                     | Run arbitrary JavaScript in Cavalry (**opt-in**, see [Security](#security)) | destructive        |
+| Tool                                     | Purpose                                                                                   | Kind               |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------ |
+| `cavalry_ping`                           | Check connectivity and versions                                                           | read               |
+| `cavalry_scene_info`                     | Scene path, unsaved state, frame, comps, active comp settings                             | read               |
+| `cavalry_set_frame`                      | Move the playhead                                                                         | edit               |
+| `cavalry_playback`                       | Play / stop                                                                               | edit               |
+| `cavalry_list_layers`                    | List layers (optionally top-level only or by type)                                        | read               |
+| `cavalry_get_selection`                  | Currently selected layers                                                                 | read               |
+| `cavalry_select`                         | Replace the selection                                                                     | edit               |
+| `cavalry_create_primitive`               | Create rectangle / ellipse / star / polygon… with attributes                              | create             |
+| `cavalry_create_layer`                   | Create any layer type (text, null, group, duplicator, material…)                          | create             |
+| `cavalry_duplicate_layer`                | Duplicate a layer, returning the new ids                                                  | create             |
+| `cavalry_rename_layer`                   | Rename a layer                                                                            | edit               |
+| `cavalry_set_parent`                     | Parent / un-parent a layer                                                                | edit               |
+| `cavalry_delete_layers`                  | Delete layers                                                                             | destructive        |
+| `cavalry_list_attributes`                | List attribute paths (optionally with types and values)                                   | read               |
+| `cavalry_get_attributes`                 | Read attribute values                                                                     | read               |
+| `cavalry_set_attributes`                 | Set attribute values (paths are validated first)                                          | edit               |
+| `cavalry_get_bounding_box`               | Layer bounds for layout and alignment                                                     | read               |
+| `cavalry_inspect_connections`            | Incoming / outgoing connections of a layer                                                | read               |
+| `cavalry_add_dynamic_attribute`          | Add a dynamic attribute (e.g. on JavaScript layers)                                       | create             |
+| `cavalry_set_generator`                  | Swap a layer's generator                                                                  | edit               |
+| `cavalry_set_expression`                 | Set / clear an attribute expression                                                       | edit               |
+| `cavalry_connect` / `cavalry_disconnect` | Wire attributes together                                                                  | edit / destructive |
+| `cavalry_set_keyframes`                  | Keyframe one or more attributes, with Magic Easing                                        | edit               |
+| `cavalry_delete_keyframes`               | Delete keyframes or all animation on an attribute                                         | destructive        |
+| `cavalry_render_png`                     | Render a frame to PNG                                                                     | create             |
+| `cavalry_save_scene`                     | Save / Save As                                                                            | edit               |
+| `cavalry_open_scene`                     | Open a `.cv` file                                                                         | destructive        |
+| `cavalry_batch`                          | Run many operations in one round-trip, with `$0`-style references (fail-fast, not atomic) | destructive        |
+| `cavalry_run_script`                     | Run arbitrary JavaScript in Cavalry (**opt-in**, see [Security](#security))               | destructive        |
+
+**Resource:** `cavalry://guide/attributes` is a built-in guide to common layer types, attribute paths (`rotation.z`, `shapeScale.x`, `startFrame`, …), Magic Easing names and known gotchas. Clients that support MCP resources can attach it as context.
+
+**Batch references:** later operations in `cavalry_batch` can use results from earlier ones. `"$0"` means the id created by operation 0, and `"$1.created.0.id"` walks into a result:
+
+```json
+[
+  { "op": "create_primitive", "args": { "shape": "ellipse", "attributes": { "hidden": true } } },
+  { "op": "create_layer", "args": { "type": "duplicator" } },
+  { "op": "connect", "args": { "fromLayerId": "$0", "toLayerId": "$1", "toAttrId": "shapes" } },
+  { "op": "set_generator", "args": { "layerId": "$1", "type": "circleDistribution" } }
+]
+```
 
 **Magic Easing names:** `SlowIn`, `SlowOut`, `SlowInSlowOut`, `VerySlowIn`, `VerySlowOut`, `VerySlowInVerySlowOut`, `SpringIn`, `SpringOut`, `SpringInSpringOut`, `SmallSpringIn`, `SmallSpringOut`, `SmallSpringInSmallSpringOut`, `AnticipateIn`, `OvershootOut`, `AnticipateInOvershootOut`, `BounceIn`, `BounceOut`, `BounceInBounceOut`, `Custom` (with an expression such as `1 - pow(1 - x, 5)`), `None`.
 
@@ -214,13 +231,14 @@ Tips for good results:
 
 The server reads these environment variables. All are optional.
 
-| Variable                       | Default     | Description                                                    |
-| ------------------------------ | ----------- | -------------------------------------------------------------- |
-| `CAVALRY_MCP_HOST`             | `127.0.0.1` | Host the bridge listens on. Keep it on loopback.               |
-| `CAVALRY_MCP_PORT`             | `37650`     | Must match `CONFIG.port` in the bridge script.                 |
-| `CAVALRY_MCP_TIMEOUT_MS`       | `15000`     | Max wait for a single operation (raise it for heavy renders).  |
-| `CAVALRY_MCP_POLL_INTERVAL_MS` | `40`        | How often the server polls the bridge for results.             |
-| `CAVALRY_MCP_ALLOW_SCRIPT`     | `false`     | Registers `cavalry_run_script`. The bridge must also allow it. |
+| Variable                       | Default     | Description                                                                                                                                        |
+| ------------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CAVALRY_MCP_HOST`             | `127.0.0.1` | Host the bridge listens on. Keep it on loopback.                                                                                                   |
+| `CAVALRY_MCP_PORT`             | `37650`     | Must match `CONFIG.port` in the bridge script.                                                                                                     |
+| `CAVALRY_MCP_TIMEOUT_MS`       | `15000`     | Max wait for a single operation (raise it for heavy renders).                                                                                      |
+| `CAVALRY_MCP_POLL_INTERVAL_MS` | `40`        | How often the server polls the bridge for results.                                                                                                 |
+| `CAVALRY_MCP_FROZEN_MS`        | `5000`      | Fail fast with `BridgeFrozenError` when Cavalry processes nothing for this long (`0` disables). Rendering, saving, opening and batches are exempt. |
+| `CAVALRY_MCP_ALLOW_SCRIPT`     | `false`     | Registers `cavalry_run_script`. The bridge must also allow it.                                                                                     |
 
 Pass them through your client config:
 
@@ -249,14 +267,15 @@ Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 ## Troubleshooting
 
-| Symptom                                                   | Fix                                                                                                                                |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `BridgeUnavailableError: Cannot reach the Cavalry bridge` | Cavalry is not running, or the bridge panel isn't open. Run **Window > Scripts > cavalry-mcp-bridge**. Check that the ports match. |
-| `BridgeTimeoutError`                                      | Keep Cavalry **in the foreground**: background windows pause script callbacks. For long renders, raise `CAVALRY_MCP_TIMEOUT_MS`.   |
-| `BridgeProtocolError: ... not the cavalry-mcp bridge`     | Another app is using the port. Change `CONFIG.port` and `CAVALRY_MCP_PORT` to the same free port.                                  |
-| `Bridge protocol mismatch`                                | Copy the `cavalry-mcp-bridge.js` from the same release as your server into Cavalry again.                                          |
-| `Layer '…' does not exist`                                | Ids change when layers are deleted or scenes reopen. Ask the assistant to call `cavalry_list_layers` again.                        |
-| Tools don't appear in Claude                              | Check that the path in the config is absolute and that `dist/index.js` exists (`npm run build`), then restart the client.          |
+| Symptom                                                   | Fix                                                                                                                                      |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `BridgeUnavailableError: Cannot reach the Cavalry bridge` | Cavalry is not running, or the bridge panel isn't open. Run **Window > Scripts > cavalry-mcp-bridge**. Check that the ports match.       |
+| `BridgeFrozenError`                                       | Cavalry is in the background or a dialog is open. Bring Cavalry to the front; the request is still queued and runs once Cavalry resumes. |
+| `BridgeTimeoutError`                                      | The operation took too long. For long renders, raise `CAVALRY_MCP_TIMEOUT_MS`.                                                           |
+| `BridgeProtocolError: ... not the cavalry-mcp bridge`     | Another app is using the port. Change `CONFIG.port` and `CAVALRY_MCP_PORT` to the same free port.                                        |
+| `Bridge protocol mismatch`                                | Copy the `cavalry-mcp-bridge.js` from the same release as your server into Cavalry again.                                                |
+| `Layer '…' does not exist`                                | Ids change when layers are deleted or scenes reopen. Ask the assistant to call `cavalry_list_layers` again.                              |
+| Tools don't appear in Claude                              | Check that the path in the config is absolute and that `dist/index.js` exists (`npm run build`), then restart the client.                |
 
 To debug the server without an AI client, use the MCP Inspector:
 
@@ -282,6 +301,7 @@ cavalry-mcp/
 │   ├── index.ts                   # CLI entry: config, stdio transport
 │   ├── server.ts                  # Registers tools on the MCP server
 │   ├── tools.ts                   # Declarative tool catalogue (schemas, annotations)
+│   ├── guide.ts                   # cavalry://guide/attributes resource
 │   ├── bridge-client.ts           # HTTP POST-then-poll client + typed errors
 │   └── config.ts                  # Environment variable parsing
 ├── test/                          # Unit + end-to-end tests with a fake Cavalry api
@@ -302,6 +322,16 @@ To add a tool: implement the operation in the bridge's `ops` table, add its defi
 ## Contributing
 
 Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. The automated tests run against an emulated Cavalry, so reports from real Cavalry sessions, including version, OS and the failing tool call, are especially valuable.
+
+## Acknowledgements
+
+These community projects shaped this one, and their ideas are credited here:
+
+- [ZHUYUFAN3-33/cavalry-mcp](https://github.com/ZHUYUFAN3-33/cavalry-mcp): typed tools instead of raw eval, the POST-then-poll protocol with request ids, fail-fast "frozen" detection, bounding box and connection inspection, and community-verified attribute paths (which feed the attribute guide).
+- [kacperchlebowicz/Cavalry-mcp](https://github.com/kacperchlebowicz/Cavalry-mcp): dynamic attributes, and the reference list of layer types and attribute paths.
+- [matthewobanla/Calvary-MCP](https://github.com/matthewobanla/Calvary-MCP): node-graph and render-pipeline workflows (render-queue tools are on the roadmap).
+
+No code was copied; all implementations here are original.
 
 ## License
 

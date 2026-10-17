@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  BridgeFrozenError,
   BridgeOperationError,
   BridgeProtocolError,
   BridgeTimeoutError,
@@ -15,8 +16,8 @@ afterEach(async () => {
   while (closers.length) await closers.pop()!();
 });
 
-function client(port: number, timeoutMs = 2000) {
-  return new CavalryBridgeClient({ host: "127.0.0.1", port, timeoutMs, pollIntervalMs: 5 });
+function client(port: number, timeoutMs = 2000, frozenMs = 0) {
+  return new CavalryBridgeClient({ host: "127.0.0.1", port, timeoutMs, pollIntervalMs: 5, frozenMs });
 }
 
 async function serveText(text: string): Promise<number> {
@@ -67,6 +68,24 @@ describe("CavalryBridgeClient", () => {
   it("detects a protocol mismatch", async () => {
     const port = await serveText(JSON.stringify({ bridge: "cavalry-mcp", protocol: 99, results: {} }));
     await expect(client(port).call("ping")).rejects.toThrow(/protocol mismatch/);
+  });
+
+  it("fails fast when Cavalry stops processing (backgrounded)", async () => {
+    const cavalry = await startFakeCavalry();
+    closers.push(cavalry.close);
+    cavalry.setPaused(true);
+    const started = Date.now();
+    await expect(client(cavalry.port, 5000, 200).call("ping")).rejects.toBeInstanceOf(BridgeFrozenError);
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
+
+  it("skips frozen detection for long-running calls", async () => {
+    const cavalry = await startFakeCavalry();
+    closers.push(cavalry.close);
+    cavalry.setPaused(true);
+    setTimeout(() => cavalry.setPaused(false), 400);
+    const result = await client(cavalry.port, 3000, 100).call<{ bridge: string }>("ping", {}, { detectFrozen: false });
+    expect(result.bridge).toBe("cavalry-mcp");
   });
 
   it("times out when the bridge never answers", async () => {

@@ -13,9 +13,10 @@ describe("loadConfig", () => {
         CAVALRY_MCP_PORT: "9000",
         CAVALRY_MCP_TIMEOUT_MS: "2000",
         CAVALRY_MCP_POLL_INTERVAL_MS: "10",
+        CAVALRY_MCP_FROZEN_MS: "0",
         CAVALRY_MCP_ALLOW_SCRIPT: "true",
       }),
-    ).toEqual({ host: "localhost", port: 9000, timeoutMs: 2000, pollIntervalMs: 10, allowScript: true });
+    ).toEqual({ host: "localhost", port: 9000, timeoutMs: 2000, pollIntervalMs: 10, frozenMs: 0, allowScript: true });
   });
 
   it.each([["0"], ["70000"], ["abc"], ["80.5"]])("rejects port %s", (port) => {

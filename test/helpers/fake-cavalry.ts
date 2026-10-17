@@ -24,6 +24,7 @@ export class FakeCavalryApi {
   playing = false;
   sceneFilePath = "";
   renders: Array<{ filePath: string; scale: number }> = [];
+  connections: Array<{ from: string; fromAttr: string; to: string; toAttr: string }> = [];
   private counters: Record<string, number> = {};
   readonly comp = "composition#1";
 
@@ -31,7 +32,7 @@ export class FakeCavalryApi {
     this.addLayer(
       "composition",
       "Composition 1",
-      { resolution: [1920, 1080], fps: 30, frameRange: [0, 120] },
+      { resolution: [1920, 1080], fps: 30, startFrame: 0, endFrame: 120 },
       this.comp,
     );
   }
@@ -44,7 +45,7 @@ export class FakeCavalryApi {
       name: name || id,
       type,
       parent: "",
-      attributes: { position: [0, 0], rotation: 0, ...attributes },
+      attributes: { position: [0, 0], rotation: 0, scale: [1, 1], opacity: 100, ...attributes },
       keyframes: {},
       easings: {},
     });
@@ -123,10 +124,30 @@ export class FakeCavalryApi {
     this.layer(id).attributes[attr] = type;
   };
   connect = (from: string, fromAttr: string, to: string, toAttr: string) => {
-    this.layer(to).attributes[toAttr] = `${from}.${fromAttr}`;
+    this.connections.push({ from, fromAttr, to, toAttr });
   };
-  disconnect = (_from: string, _fromAttr: string, to: string, toAttr: string) => {
-    delete this.layer(to).attributes[toAttr];
+  getInConnectedAttributes = (id: string) => this.connections.filter((c) => c.to === id).map((c) => c.toAttr);
+  getInConnection = (id: string, attr: string) => {
+    const c = this.connections.find((c) => c.to === id && c.toAttr === attr);
+    return c ? `${c.from}.${c.fromAttr}` : "";
+  };
+  getOutConnectedAttributes = (id: string) => this.connections.filter((c) => c.from === id).map((c) => c.fromAttr);
+  getOutConnections = (id: string, attr: string) =>
+    this.connections.filter((c) => c.from === id && c.fromAttr === attr).map((c) => `${c.to}.${c.toAttr}`);
+  getBoundingBox = (id: string) => {
+    const [x, y] = this.layer(id).attributes.position as [number, number];
+    return { x: x - 50, y: y - 50, width: 100, height: 100, centre: { x, y } };
+  };
+  addDynamic = (id: string, attr: string) => {
+    const layer = this.layer(id);
+    const list = (layer.attributes[attr] ??= []) as unknown[];
+    list.push(0);
+  };
+  getArrayCount = (id: string, attr: string) => ((this.layer(id).attributes[attr] ?? []) as unknown[]).length;
+  disconnect = (from: string, fromAttr: string, to: string, toAttr: string) => {
+    this.connections = this.connections.filter(
+      (c) => !(c.from === from && c.fromAttr === fromAttr && c.to === to && c.toAttr === toAttr),
+    );
   };
   keyframe = (id: string, frame: number, values: Record<string, unknown>) => {
     const layer = this.layer(id);
@@ -184,12 +205,14 @@ export function loadBridge(api: FakeCavalryApi, config: { allowScript?: boolean;
  * queued and drained on a polling tick; GET /get returns the latest snapshot.
  */
 export async function startFakeCavalry(options: { allowScript?: boolean; tickMs?: number } = {}) {
+  let paused = false;
   const api = new FakeCavalryApi();
   const bridge = loadBridge(api, { allowScript: options.allowScript ?? false });
   const queue: string[] = [];
   let getResult = bridge.snapshot();
 
   const timer = setInterval(() => {
+    if (paused) return;
     while (queue.length > 0) bridge.handlePost(queue.shift()!);
     getResult = bridge.snapshot();
   }, options.tickMs ?? 5);
@@ -217,6 +240,10 @@ export async function startFakeCavalry(options: { allowScript?: boolean; tickMs?
   return {
     api,
     port,
+    /** Simulate Cavalry being in the background (script callbacks paused). */
+    setPaused(value: boolean) {
+      paused = value;
+    },
     async close() {
       clearInterval(timer);
       await new Promise<void>((resolve) => server.close(() => resolve()));

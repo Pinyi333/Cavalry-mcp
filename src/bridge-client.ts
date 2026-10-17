@@ -3,11 +3,21 @@ import { randomUUID } from "node:crypto";
 /** The protocol version this client speaks; must match the bridge script. */
 export const PROTOCOL_VERSION = 1;
 
+export interface CallOptions {
+  /**
+   * Fail fast with BridgeFrozenError if the bridge stops processing requests.
+   * Disable for operations that legitimately block Cavalry for a long time (rendering, opening scenes).
+   */
+  detectFrozen?: boolean;
+}
+
 export interface BridgeClientOptions {
   host: string;
   port: number;
   timeoutMs: number;
   pollIntervalMs: number;
+  /** Fail fast when the bridge processes nothing for this long (0 disables). */
+  frozenMs: number;
   /** Injectable for tests. Defaults to the global fetch. */
   fetch?: typeof fetch;
 }
@@ -15,6 +25,7 @@ export interface BridgeClientOptions {
 interface BridgeSnapshot {
   bridge?: string;
   protocol?: number;
+  processed?: number;
   results?: Record<string, BridgeResult | undefined>;
 }
 
@@ -33,6 +44,11 @@ export class BridgeUnavailableError extends BridgeError {
 /** The bridge accepted the request but did not answer in time. */
 export class BridgeTimeoutError extends BridgeError {
   override name = "BridgeTimeoutError";
+}
+
+/** The bridge stopped processing requests: Cavalry is in the background, blocked by a dialog, or busy. */
+export class BridgeFrozenError extends BridgeError {
+  override name = "BridgeFrozenError";
 }
 
 /** Cavalry ran the operation and reported a failure. */
@@ -68,9 +84,12 @@ export class CavalryBridgeClient {
     return this.baseUrl;
   }
 
-  async call<T = unknown>(op: string, args: Record<string, unknown> = {}): Promise<T> {
+  async call<T = unknown>(op: string, args: Record<string, unknown> = {}, callOptions: CallOptions = {}): Promise<T> {
     const id = randomUUID();
     const deadline = Date.now() + this.options.timeoutMs;
+    const detectFrozen = (callOptions.detectFrozen ?? true) && this.options.frozenMs > 0;
+    let lastProcessed: number | undefined;
+    let lastProgressAt = Date.now();
 
     await this.request("/post", {
       method: "POST",
@@ -84,6 +103,16 @@ export class CavalryBridgeClient {
       if (result) {
         if (result.ok) return result.result as T;
         throw new BridgeOperationError(result.error);
+      }
+      if (snapshot.processed !== lastProcessed) {
+        lastProcessed = snapshot.processed;
+        lastProgressAt = Date.now();
+      } else if (detectFrozen && Date.now() - lastProgressAt >= this.options.frozenMs) {
+        throw new BridgeFrozenError(
+          `Cavalry accepted "${op}" but has not processed any request for ${this.options.frozenMs} ms. ` +
+            "Bring the Cavalry window to the foreground (background windows pause script callbacks) and close any " +
+            "open dialogs. The request is still queued and will run once Cavalry resumes.",
+        );
       }
       if (Date.now() >= deadline) {
         throw new BridgeTimeoutError(

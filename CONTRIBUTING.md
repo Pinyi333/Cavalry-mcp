@@ -4,14 +4,14 @@ Thanks for your interest in improving Cavalry MCP! This guide covers the workflo
 
 ## Ground rules
 
-- Be respectful and constructive.
+- Be respectful and constructive. This project follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 - **Never commit secrets** (API keys, tokens, personal paths, `.env` files). The project needs none.
 - Keep the bridge (`bridge/cavalry-mcp-bridge.js`) dependency-free and in plain ES2017. It runs inside Cavalry's
   JavaScript engine, not Node.
 
 ## Reporting bugs
 
-Open an issue using the **Bug report** template and include:
+Open an issue using the **Bug report** template (or **Question / help** if you are stuck rather than seeing a bug) and include:
 
 - Cavalry version (`cavalry_ping` prints it), OS and Node.js version
 - The MCP client you use (Claude Desktop, Claude Code, …)

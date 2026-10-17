@@ -1,0 +1,19 @@
+name: Question / help
+description: Ask how to do something with Cavalry MCP
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: Please check the README's Troubleshooting section first. Don't paste secrets or private file paths.
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+      description: Describe the goal, what you tried and what happened.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Cavalry version / OS / MCP client
+      placeholder: "2.7.0 / macOS 15.2 / Claude Desktop"

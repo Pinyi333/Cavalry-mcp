@@ -6,6 +6,8 @@
 
 [![CI](https://github.com/Pinyi333/cavalry-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Pinyi333/cavalry-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/github/package-json/v/Pinyi333/cavalry-mcp?label=version)](CHANGELOG.md)
+[![GitHub stars](https://img.shields.io/github/stars/Pinyi333/cavalry-mcp?style=flat)](https://github.com/Pinyi333/cavalry-mcp/stargazers)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.17-339933)
 ![MCP](https://img.shields.io/badge/MCP-stdio-8A2BE2)
 
@@ -323,7 +325,7 @@ cavalry-mcp/
 
 ## 參與貢獻
 
-歡迎提出 Issue 和 Pull Request，請先閱讀 [CONTRIBUTING.md](CONTRIBUTING.md)。自動化測試是在模擬的 Cavalry 上執行，所以來自實際 Cavalry 環境的回報特別有價值，請附上 Cavalry 版本、作業系統，以及失敗的工具呼叫內容。
+歡迎提出 Issue 和 Pull Request，請先閱讀 [CONTRIBUTING.md](CONTRIBUTING.md)。所有參與者都應遵守[行為準則](CODE_OF_CONDUCT.md)。自動化測試是在模擬的 Cavalry 上執行，所以來自實際 Cavalry 環境的回報特別有價值，請附上 Cavalry 版本、作業系統，以及失敗的工具呼叫內容。
 
 ## 致謝
 

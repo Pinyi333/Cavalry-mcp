@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Code of Conduct (Contributor Covenant 2.1), a Question / help issue template, a related-issue section in the PR
+  template, and version and stars badges in both READMEs.
+
 ## [0.1.0] - 2026-10-17
 
 ### Added

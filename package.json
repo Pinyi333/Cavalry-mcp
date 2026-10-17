@@ -1,0 +1,67 @@
+{
+  "name": "cavalry-mcp",
+  "version": "0.1.0",
+  "description": "Model Context Protocol (MCP) server that lets AI assistants such as Claude drive Cavalry, the 2D procedural motion-design app.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cavalry",
+    "motion-design",
+    "animation",
+    "claude",
+    "ai"
+  ],
+  "homepage": "https://github.com/Pinyi333/cavalry-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/Pinyi333/cavalry-mcp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pinyi333/cavalry-mcp.git"
+  },
+  "license": "MIT",
+  "author": "Piny",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "cavalry-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "bridge",
+    "README.md",
+    "README.zh-TW.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.19.0",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.5"
+  }
+}

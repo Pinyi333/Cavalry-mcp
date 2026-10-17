@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "cavalry": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js"],
+      "env": {
+        "CAVALRY_MCP_PORT": "37650",
+        "CAVALRY_MCP_TIMEOUT_MS": "15000"
+      }
+    }
+  }
+}

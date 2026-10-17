@@ -1,0 +1,39 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Please don't paste secrets or private file paths you don't want public.
+  - type: input
+    id: cavalry
+    attributes:
+      label: Cavalry version
+      placeholder: "2.7.0"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: OS / Node.js / MCP client
+      placeholder: "macOS 15.2 / Node 22.11 / Claude Desktop"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the tool name, its arguments and the full error text.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start the bridge
+        2. Ask Claude to ...

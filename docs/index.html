@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cavalry MCP: motion design in plain language</title>
+    <meta
+      name="description"
+      content="Cavalry MCP is an open-source Model Context Protocol server that lets Claude and other AI assistants drive Cavalry, the 2D procedural motion-design app."
+    />
+    <meta name="theme-color" content="#0b0b0d" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cavalry MCP: motion design in plain language" />
+    <meta
+      property="og:description"
+      content="Let Claude create layers, wire procedural rigs, keyframe with Magic Easing and render in Cavalry. Open source, local only."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0d'/%3E%3Cg fill='%23ff6b2c'%3E%3Ccircle cx='32' cy='12' r='5'/%3E%3Ccircle cx='52' cy='32' r='5'/%3E%3Ccircle cx='32' cy='52' r='5'/%3E%3Ccircle cx='12' cy='32' r='5'/%3E%3C/g%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="nav.skip">Skip to content</a>
+
+    <!-- Navigation -->
+    <header class="nav" data-nav>
+      <a class="nav__brand" href="#top" aria-label="Cavalry MCP home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>Cavalry&nbsp;MCP</span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#how" data-i18n="nav.how">How it works</a>
+        <a href="#demos" data-i18n="nav.demos">Demos</a>
+        <a href="#install" data-i18n="nav.install">Install</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="lang-toggle" type="button" data-lang-toggle aria-label="Switch language">
+          <span data-lang-opt="en">EN</span><span aria-hidden="true">/</span><span data-lang-opt="zh">中</span>
+        </button>
+        <a class="btn btn--small" href="https://github.com/Pinyi333/cavalry-mcp" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star" /></svg>
+          <span data-i18n="nav.star">Star</span>
+          <span class="star-count" data-star-count hidden></span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- Hero -->
+      <section class="hero" id="top">
+        <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
+        <div class="hero__inner">
+          <p class="eyebrow" data-reveal>
+            <span class="dot" aria-hidden="true"></span>
+            <span data-i18n="hero.eyebrow">Open-source MCP server for Cavalry</span>
+          </p>
+          <h1 class="hero__title" data-split>
+            <span class="line"><span data-i18n="hero.title1">Motion design,</span></span>
+            <span class="line"><em data-i18n="hero.title2">in plain language.</em></span>
+          </h1>
+          <p class="hero__lede" data-reveal data-i18n="hero.lede">
+            Let Claude and other AI assistants build layers, wire procedural rigs, keyframe with Magic Easing and render
+            frames inside Cavalry, through 28 typed and validated tools.
+          </p>
+          <div class="prompt" data-reveal aria-live="off">
+            <span class="prompt__label" data-i18n="hero.you">You</span>
+            <p class="prompt__text"><span data-typer></span><span class="caret" aria-hidden="true"></span></p>
+          </div>
+          <div class="hero__ctas" data-reveal>
+            <a class="btn btn--primary" href="https://github.com/Pinyi333/cavalry-mcp" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-github" /></svg>
+              <span data-i18n="cta.star">Star on GitHub</span>
+            </a>
+            <a class="btn btn--ghost" href="#install">
+              <span data-i18n="cta.start">Get started</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow" /></svg>
+            </a>
+          </div>
+        </div>
+        <a class="hero__scroll" href="#how" aria-label="Scroll down"><span></span></a>
+      </section>
+
+      <!-- Tool marquee -->
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee__track" data-marquee>
+          <span>cavalry_create_primitive</span><span>cavalry_set_keyframes</span><span>cavalry_connect</span>
+          <span>cavalry_set_generator</span><span>cavalry_batch</span><span>cavalry_render_png</span>
+          <span>cavalry_set_expression</span><span>cavalry_list_layers</span><span>cavalry_get_bounding_box</span>
+          <span>cavalry_save_scene</span><span>cavalry_inspect_connections</span><span>cavalry_set_attributes</span>
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <section class="section how" id="how">
+        <div class="section__head">
+          <p class="kicker" data-reveal>01 / <span data-i18n="how.kicker">How it works</span></p>
+          <h2 class="section__title" data-split>
+            <span class="line"><span data-i18n="how.title1">One sentence in.</span></span>
+            <span class="line"><em data-i18n="how.title2">A living scene out.</em></span>
+          </h2>
+        </div>
+
+        <div class="flow" data-flow>
+          <div class="flow__node" data-reveal>
+            <span class="flow__index">A</span>
+            <h3>Claude / MCP client</h3>
+            <p data-i18n="how.a">Claude Desktop, Claude Code, Cursor or any stdio MCP client.</p>
+          </div>
+          <div class="flow__wire" aria-hidden="true">
+            <span class="flow__tag">stdio · MCP</span>
+            <svg viewBox="0 0 200 20" preserveAspectRatio="none"><line x1="0" y1="10" x2="200" y2="10" /></svg>
+            <i class="flow__packet"></i>
+          </div>
+          <div class="flow__node flow__node--accent" data-reveal>
+            <span class="flow__index">B</span>
+            <h3>cavalry-mcp</h3>
+            <p data-i18n="how.b">A Node.js server that schema-checks every argument before it reaches Cavalry.</p>
+          </div>
+          <div class="flow__wire" aria-hidden="true">
+            <span class="flow__tag">HTTP · 127.0.0.1</span>
+            <svg viewBox="0 0 200 20" preserveAspectRatio="none"><line x1="0" y1="10" x2="200" y2="10" /></svg>
+            <i class="flow__packet"></i>
+          </div>
+          <div class="flow__node" data-reveal>
+            <span class="flow__index">C</span>
+            <h3>Cavalry bridge</h3>
+            <p data-i18n="how.c">One plain JavaScript file running inside Cavalry on its built-in WebServer.</p>
+          </div>
+        </div>
+
+        <div class="principles">
+          <article class="principle" data-reveal>
+            <span class="principle__num" data-count="28">28</span>
+            <h3 data-i18n="p1.title">Typed tools</h3>
+            <p data-i18n="p1.body">
+              Every argument is validated, and attribute paths are checked before writes. Arbitrary code execution is
+              off by default.
+            </p>
+          </article>
+          <article class="principle" data-reveal>
+            <span class="principle__num">127.0.0.1</span>
+            <h3 data-i18n="p2.title">Local only</h3>
+            <p data-i18n="p2.body">
+              The bridge binds to localhost and makes no outbound calls. Your scenes never leave your machine.
+            </p>
+          </article>
+          <article class="principle" data-reveal>
+            <span class="principle__num" data-count="1">1</span>
+            <h3 data-i18n="p3.title">Batch round-trip</h3>
+            <p data-i18n="p3.body">
+              <code>cavalry_batch</code> builds whole rigs in one call, with <code>$0</code>-style references to layers
+              made earlier.
+            </p>
+          </article>
+          <article class="principle" data-reveal>
+            <span class="principle__num" data-count="0">0</span>
+            <h3 data-i18n="p4.title">Dependencies in Cavalry</h3>
+            <p data-i18n="p4.body">
+              Copy one script into the Scripts folder and press start. Clear errors tell you exactly what to fix.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Demos -->
+      <section class="section demos" id="demos">
+        <div class="section__head">
+          <p class="kicker" data-reveal>02 / <span data-i18n="demos.kicker">Demos</span></p>
+          <h2 class="section__title" data-split>
+            <span class="line"><span data-i18n="demos.title1">Say it.</span></span>
+            <span class="line"><em data-i18n="demos.title2">Watch it move.</em></span>
+          </h2>
+          <p class="section__lede" data-reveal data-i18n="demos.lede">
+            Four prompts, from a first keyframe to restyling a whole scene. Each one is a single message to Claude.
+          </p>
+        </div>
+
+        <!--
+          To show a recorded clip, set data-video to a file path, e.g. data-video="assets/videos/demo-1.mp4".
+          Optionally add data-poster="assets/videos/demo-1.jpg". Empty data-video keeps the animated preview.
+        -->
+        <article class="demo" data-demo="bounce">
+          <div class="demo__media" data-video="" data-poster="">
+            <canvas class="demo__canvas" aria-hidden="true"></canvas>
+            <span class="demo__badge" data-i18n="demos.preview">Preview · video coming soon</span>
+          </div>
+          <div class="demo__body">
+            <p class="demo__num">①</p>
+            <h3 class="demo__title" data-i18n="d1.title">Hello, keyframes</h3>
+            <p class="demo__shows" data-i18n="d1.shows">Create a layer, set attributes, keyframe with Magic Easing.</p>
+            <blockquote class="demo__prompt" data-i18n="d1.prompt">
+              Create an orange rounded rectangle, 480 by 160, in the centre. Make it spring up from below the frame over
+              24 frames with an overshoot.
+            </blockquote>
+            <ul class="tags">
+              <li>create_primitive</li>
+              <li>set_keyframes</li>
+              <li>OvershootOut</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="demo demo--flip" data-demo="ring">
+          <div class="demo__media" data-video="" data-poster="">
+            <canvas class="demo__canvas" aria-hidden="true"></canvas>
+            <span class="demo__badge" data-i18n="demos.preview">Preview · video coming soon</span>
+          </div>
+          <div class="demo__body">
+            <p class="demo__num">②</p>
+            <h3 class="demo__title" data-i18n="d2.title">Procedural ring</h3>
+            <p class="demo__shows" data-i18n="d2.shows">
+              Duplicators, generators and connections, built in one batch call. Cavalry's signature strength.
+            </p>
+            <blockquote class="demo__prompt" data-i18n="d2.prompt">
+              Make a ring of 12 small cyan dots with a radius of 300, and slowly rotate the whole ring 360 degrees over
+              120 frames so it loops.
+            </blockquote>
+            <ul class="tags">
+              <li>batch</li>
+              <li>duplicator</li>
+              <li>circleDistribution</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="demo" data-demo="title">
+          <div class="demo__media" data-video="" data-poster="">
+            <canvas class="demo__canvas" aria-hidden="true"></canvas>
+            <span class="demo__badge" data-i18n="demos.preview">Preview · video coming soon</span>
+          </div>
+          <div class="demo__body">
+            <p class="demo__num">③</p>
+            <h3 class="demo__title" data-i18n="d3.title">Title card</h3>
+            <p class="demo__shows" data-i18n="d3.shows">
+              Text, layout, colour and staggered timing: a real deliverable in seconds.
+            </p>
+            <blockquote class="demo__prompt" data-i18n="d3.prompt">
+              Build a title card: a deep navy background, the title "Hello Cavalry" in large white bold text, and a
+              small orange subtitle underneath. Fade and slide them in one after another.
+            </blockquote>
+            <ul class="tags">
+              <li>textShape</li>
+              <li>opacity</li>
+              <li>SlowOut</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="demo demo--flip" data-demo="neon">
+          <div class="demo__media" data-video="" data-poster="">
+            <canvas class="demo__canvas" aria-hidden="true"></canvas>
+            <span class="demo__badge" data-i18n="demos.preview">Preview · video coming soon</span>
+          </div>
+          <div class="demo__body">
+            <p class="demo__num">④</p>
+            <h3 class="demo__title" data-i18n="d4.title">Understand &amp; restyle</h3>
+            <p class="demo__shows" data-i18n="d4.shows">
+              The assistant reads the existing scene first, then edits every layer with intent.
+            </p>
+            <blockquote class="demo__prompt" data-i18n="d4.prompt">
+              Look at what's in the scene and restyle it as a neon cyberpunk look. Keep the animation, just change the
+              colours and add a glow feel.
+            </blockquote>
+            <ul class="tags">
+              <li>scene_info</li>
+              <li>get_attributes</li>
+              <li>set_attributes</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <!-- Install -->
+      <section class="section install" id="install">
+        <div class="section__head">
+          <p class="kicker" data-reveal>03 / <span data-i18n="install.kicker">Install</span></p>
+          <h2 class="section__title" data-split>
+            <span class="line"><span data-i18n="install.title1">Three steps.</span></span>
+            <span class="line"><em data-i18n="install.title2">About two minutes.</em></span>
+          </h2>
+          <p class="section__lede" data-reveal data-i18n="install.lede">
+            You need Cavalry 2.7 or later (free for individuals) and Node.js 22 LTS.
+          </p>
+        </div>
+
+        <ol class="steps">
+          <li class="step" data-reveal>
+            <span class="step__num">01</span>
+            <div class="step__body">
+              <h3 data-i18n="s1.title">Build the server</h3>
+              <div class="code">
+                <pre><code>git clone https://github.com/Pinyi333/cavalry-mcp.git
+cd cavalry-mcp
+npm install</code></pre>
+                <button class="code__copy" type="button" data-copy data-i18n="copy">Copy</button>
+              </div>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step__num">02</span>
+            <div class="step__body">
+              <h3 data-i18n="s2.title">Start the bridge in Cavalry</h3>
+              <p data-i18n="s2.body">
+                Copy bridge/cavalry-mcp-bridge.js into Cavalry's Scripts folder (Help &gt; Scripts), then run Window
+                &gt; Scripts &gt; cavalry-mcp-bridge. The panel shows "Listening on 127.0.0.1:37650".
+              </p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step__num">03</span>
+            <div class="step__body">
+              <h3 data-i18n="s3.title">Connect your client</h3>
+              <div class="tabs" data-tabs>
+                <div class="tabs__list" role="tablist" aria-label="MCP client">
+                  <button role="tab" type="button" aria-selected="true" aria-controls="tab-desktop" id="t-desktop">
+                    Claude Desktop
+                  </button>
+                  <button role="tab" type="button" aria-selected="false" aria-controls="tab-code" id="t-code">
+                    Claude Code
+                  </button>
+                  <button role="tab" type="button" aria-selected="false" aria-controls="tab-cursor" id="t-cursor">
+                    Cursor
+                  </button>
+                </div>
+                <div class="code" role="tabpanel" id="tab-desktop" aria-labelledby="t-desktop">
+                  <pre><code>{
+  "mcpServers": {
+    "cavalry": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js"]
+    }
+  }
+}</code></pre>
+                  <button class="code__copy" type="button" data-copy data-i18n="copy">Copy</button>
+                </div>
+                <div class="code" role="tabpanel" id="tab-code" aria-labelledby="t-code" hidden>
+                  <pre><code>claude mcp add cavalry -- node /ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js</code></pre>
+                  <button class="code__copy" type="button" data-copy data-i18n="copy">Copy</button>
+                </div>
+                <div class="code" role="tabpanel" id="tab-cursor" aria-labelledby="t-cursor" hidden>
+                  <pre><code>// ~/.cursor/mcp.json
+{
+  "mcpServers": {
+    "cavalry": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js"]
+    }
+  }
+}</code></pre>
+                  <button class="code__copy" type="button" data-copy data-i18n="copy">Copy</button>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ol>
+        <p class="install__more" data-reveal>
+          <a href="https://github.com/Pinyi333/cavalry-mcp#readme" target="_blank" rel="noopener">
+            <span data-i18n="install.more">Full guide, tool reference and troubleshooting</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow" /></svg>
+          </a>
+        </p>
+      </section>
+
+      <!-- Star CTA -->
+      <section class="cta" id="star">
+        <canvas class="cta__canvas" data-cta-canvas aria-hidden="true"></canvas>
+        <div class="cta__inner">
+          <p class="kicker" data-reveal>04 / <span data-i18n="cta.kicker">Open source</span></p>
+          <h2 class="cta__title" data-split>
+            <span class="line"><span data-i18n="cta.title1">Star it.</span></span>
+            <span class="line"><em data-i18n="cta.title2">Shape it.</em></span>
+          </h2>
+          <p class="cta__lede" data-reveal data-i18n="cta.lede">
+            Cavalry MCP is MIT licensed and built in the open. A star helps more motion designers find it, and issues
+            and pull requests decide what it learns next.
+          </p>
+          <div class="hero__ctas" data-reveal>
+            <a
+              class="btn btn--primary btn--large"
+              href="https://github.com/Pinyi333/cavalry-mcp"
+              target="_blank"
+              rel="noopener"
+              data-magnetic
+            >
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star" /></svg>
+              <span data-i18n="cta.star">Star on GitHub</span>
+              <span class="star-count" data-star-count hidden></span>
+            </a>
+            <a
+              class="btn btn--ghost btn--large"
+              href="https://github.com/Pinyi333/cavalry-mcp/issues/new/choose"
+              target="_blank"
+              rel="noopener"
+            >
+              <span data-i18n="cta.issue">Suggest a tool</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        <span>© 2026 Cavalry MCP · MIT</span>
+        <span data-i18n="footer.note"
+          >An independent community project, not affiliated with Cavalry or Scene Group.</span
+        >
+      </p>
+      <nav aria-label="Footer">
+        <a href="https://github.com/Pinyi333/cavalry-mcp" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Pinyi333/cavalry-mcp/blob/main/docs/protocol.md" target="_blank" rel="noopener"
+          >Protocol</a
+        >
+        <a href="https://cavalry.studio/" target="_blank" rel="noopener">cavalry.studio</a>
+      </nav>
+    </footer>
+
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="i-star" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" />
+      </symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M5 12h14m-6-6l6 6-6 6" />
+      </symbol>
+      <symbol id="i-github" viewBox="0 0 24 24">
+        <path
+          fill="currentColor"
+          d="M12 .5a11.5 11.5 0 00-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 015.8 0C17.2 5 18.2 5.3 18.2 5.3c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0012 .5z"
+        />
+      </symbol>
+    </svg>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <script src="assets/js/i18n.js" defer></script>
+    <script src="assets/js/canvas.js" defer></script>
+    <script src="assets/js/main.js" defer></script>
+  </body>
+</html>

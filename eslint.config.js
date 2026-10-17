@@ -25,6 +25,14 @@ export default tseslint.config(
     },
   },
   {
+    // Landing page scripts, loaded as classic <script> tags in the browser.
+    files: ["docs/**/*.js"],
+    languageOptions: {
+      sourceType: "script",
+      globals: globals.browser,
+    },
+  },
+  {
     files: ["*.config.{js,ts}"],
     languageOptions: { globals: globals.node },
   },

@@ -171,6 +171,8 @@ Then ask your assistant: **"Ping Cavalry."** You should get the bridge and Caval
 | "Render frame 30 at 50% to ~/Desktop/preview.png." | `cavalry_render_png`                                                                                   |
 | "Save this as ~/Projects/intro.cv."                | `cavalry_save_scene`                                                                                   |
 
+More step-by-step demos (with fallbacks) are in [examples/demo-prompts.md](examples/demo-prompts.md).
+
 Tips for good results:
 
 - If a write is rejected with _"has no attribute"_, the path is wrong. Cavalry would otherwise ignore it silently, so the server checks every path first. Use `cavalry_list_attributes` to find the right one. In 2D, rotate with `rotation.z`.

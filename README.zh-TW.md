@@ -171,6 +171,8 @@ claude mcp add cavalry -- node /ABSOLUTE/PATH/TO/cavalry-mcp/dist/index.js
 | 「把第 30 格以 50% 尺寸輸出到 ~/Desktop/preview.png。」 | `cavalry_render_png`                                                                                     |
 | 「存成 ~/Projects/intro.cv。」                          | `cavalry_save_scene`                                                                                     |
 
+更多附備案的逐步示範，請見 [examples/demo-prompts.md](examples/demo-prompts.md)。
+
 讓效果更好的小技巧：
 
 - 寫入時如果出現 _「has no attribute」_，代表屬性路徑錯了。Cavalry 遇到錯誤路徑原本會直接忽略、不報錯，所以伺服器會先檢查每個路徑。請用 `cavalry_list_attributes` 查正確的路徑。2D 旋轉請用 `rotation.z`。

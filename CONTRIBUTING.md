@@ -48,6 +48,9 @@ Check function names against the official
 ## Pull requests
 
 - Branch from `main` and keep each PR focused on one change.
+- Name branches semantically as `<type>/<short-kebab-description>`, using the same types as commit messages:
+  `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`, `ci/`, `perf/`. Examples: `feat/render-queue-tools`,
+  `fix/bridge-timeout-message`, `docs/zh-tw-install-guide`.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for messages (`feat:`, `fix:`, `docs:`, …).
 - Make sure `npm run check` passes. CI runs the same command on Node 20, 22 and 24.
 - If you change the request/response shape, bump `PROTOCOL_VERSION` in both `src/bridge-client.ts` and the bridge,

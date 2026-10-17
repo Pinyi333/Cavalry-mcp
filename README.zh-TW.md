@@ -9,7 +9,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D18.17-339933)
 ![MCP](https://img.shields.io/badge/MCP-stdio-8A2BE2)
 
-[English](README.md) · **繁體中文**
+**[官方網站](https://pinyi333.github.io/Cavalry-mcp/?lang=zh)** · [English](README.md) · **繁體中文**
 
 </div>
 
@@ -308,8 +308,15 @@ cavalry-mcp/
 │   └── config.ts                  # 解析環境變數
 ├── test/                          # 單元測試 + 使用模擬 Cavalry api 的端對端測試
 ├── docs/protocol.md               # 橋接器通訊協定
+├── docs/index.html                # 推廣首頁（GitHub Pages）
 └── examples/                      # MCP 用戶端設定範本
 ```
+
+### 推廣首頁
+
+專案網站放在 [`docs/`](docs/)，以純 HTML、CSS、JavaScript 搭配 [GSAP](https://gsap.com/) 與 canvas 製作，不需要建置。直接用瀏覽器開啟 `docs/index.html`，或用任何靜態伺服器（`npx serve docs`）即可預覽。[Deploy site](.github/workflows/pages.yml) workflow 會在每次推送到 `main` 且有修改 `docs/` 時自動發佈；第一次使用請到 **Settings > Pages > Build and deployment > Source** 選擇 **GitHub Actions**。
+
+若要把示範的動畫預覽換成實際錄影，把影片放到 `docs/assets/videos/`，再在 `docs/index.html` 對應示範的 `.demo__media` 元素設定 `data-video="assets/videos/demo-1.mp4"`（可另加 `data-poster`）。英文文案寫在 HTML 裡，繁體中文字串在 `docs/assets/js/i18n.js`。
 
 新增工具的步驟：在橋接器的 `ops` 表實作操作，在 `src/tools.ts` 加上定義，再到 `test/bridge.test.ts` 補上測試。詳見 [CONTRIBUTING.md](CONTRIBUTING.md)。
 

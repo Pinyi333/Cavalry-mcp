@@ -9,7 +9,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D18.17-339933)
 ![MCP](https://img.shields.io/badge/MCP-stdio-8A2BE2)
 
-**English** · [繁體中文](README.zh-TW.md)
+**[Website](https://pinyi333.github.io/Cavalry-mcp/)** · **English** · [繁體中文](README.zh-TW.md)
 
 </div>
 
@@ -308,8 +308,15 @@ cavalry-mcp/
 │   └── config.ts                  # Environment variable parsing
 ├── test/                          # Unit + end-to-end tests with a fake Cavalry api
 ├── docs/protocol.md               # Bridge wire protocol
+├── docs/index.html                # Landing page (GitHub Pages)
 └── examples/                      # MCP client config templates
 ```
+
+### Landing page
+
+The project website lives in [`docs/`](docs/) as plain HTML, CSS and JavaScript with [GSAP](https://gsap.com/) and canvas, no build step. Preview it by opening `docs/index.html` in a browser, or with any static server (`npx serve docs`). The [Deploy site](.github/workflows/pages.yml) workflow publishes it on every push to `main` that touches `docs/`; enable it once under **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+
+To replace a demo's animated preview with a recording, put the clip in `docs/assets/videos/` and set `data-video="assets/videos/demo-1.mp4"` (and optionally `data-poster`) on that demo's `.demo__media` element in `docs/index.html`. English copy lives in the HTML; Traditional Chinese strings live in `docs/assets/js/i18n.js`.
 
 To add a tool: implement the operation in the bridge's `ops` table, add its definition to `src/tools.ts`, and cover it in `test/bridge.test.ts`. See [CONTRIBUTING.md](CONTRIBUTING.md).
 

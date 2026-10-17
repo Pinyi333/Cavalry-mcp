@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Bilingual (English / 繁體中文) landing page in `docs/`, built with plain HTML, CSS, GSAP and canvas, with animated
+  previews of the four demos and slots for recorded videos.
+- `Deploy site` workflow that publishes `docs/` to GitHub Pages.
+
 ## [0.1.0] - 2026-10-17
 
 ### Added

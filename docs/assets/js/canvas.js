@@ -3,10 +3,12 @@
 (function () {
   "use strict";
 
+  // Page colours follow Cavalry's brand violet; the demo scenes keep the colours their prompts ask for.
   var COLORS = {
-    bg: "#0b0b0d",
-    ink: "#f4f1ea",
-    accent: "#ff6b2c",
+    ink: "#11101a",
+    accent: "#6437ff",
+    lilac: "#a58bff",
+    orange: "#ff6b2c",
     cyan: "#3ee6ff",
     magenta: "#ff2bd6",
     navy: "#0f1c3f",
@@ -102,7 +104,7 @@
     { count: 12, radius: 0.16, speed: 0.18, size: 5, color: COLORS.accent },
     { count: 20, radius: 0.27, speed: -0.11, size: 3.2, color: COLORS.ink },
     { count: 28, radius: 0.38, speed: 0.07, size: 2.6, color: COLORS.ink },
-    { count: 36, radius: 0.49, speed: -0.045, size: 2.2, color: COLORS.cyan },
+    { count: 36, radius: 0.49, speed: -0.045, size: 2.2, color: COLORS.lilac },
     { count: 48, radius: 0.6, speed: 0.03, size: 1.8, color: COLORS.ink },
   ];
 
@@ -116,8 +118,8 @@
 
     // Soft glow behind the rig.
     var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, unit * 0.55);
-    glow.addColorStop(0, "rgba(255,107,44,0.16)");
-    glow.addColorStop(1, "rgba(255,107,44,0)");
+    glow.addColorStop(0, "rgba(100,55,255,0.12)");
+    glow.addColorStop(1, "rgba(100,55,255,0)");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, w, h);
 
@@ -126,7 +128,7 @@
       // Thin guide circle, like a generator's distribution path.
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(244,241,234,0.05)";
+      ctx.strokeStyle = "rgba(17,16,26,0.07)";
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -140,7 +142,7 @@
         var pulse = 1 + 0.35 * Math.sin(t * 2 + i * 0.5 + ri * 1.3);
         var size = ring.size * pulse * (1 + near * 1.6);
 
-        ctx.globalAlpha = ring.color === COLORS.ink ? 0.35 + near * 0.65 : 0.9;
+        ctx.globalAlpha = ring.color === COLORS.ink ? 0.28 + near * 0.72 : 0.9;
         ctx.fillStyle = near > 0.4 ? COLORS.accent : ring.color;
         ctx.beginPath();
         ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -157,7 +159,7 @@
       var iy = cy + Math.sin(ang) * inner.radius * unit;
       var dist = Math.hypot(ix - px, iy - py);
       if (pointer.active && dist < 260) {
-        ctx.strokeStyle = "rgba(255,107,44," + (0.4 * (1 - dist / 260)).toFixed(3) + ")";
+        ctx.strokeStyle = "rgba(100,55,255," + (0.4 * (1 - dist / 260)).toFixed(3) + ")";
         ctx.beginPath();
         ctx.moveTo(ix, iy);
         ctx.lineTo(px, py);
@@ -179,7 +181,7 @@
         var wave = Math.sin(d * 0.022 - t * 1.8);
         var fade = 1 - d / maxD;
         var s = 0.6 + Math.max(0, wave) * 2.2 * fade;
-        ctx.globalAlpha = 0.12 + Math.max(0, wave) * 0.5 * fade;
+        ctx.globalAlpha = 0.1 + Math.max(0, wave) * 0.45 * fade;
         ctx.fillStyle = wave > 0.92 ? COLORS.accent : COLORS.ink;
         ctx.beginPath();
         ctx.arc(x, y, s, 0, Math.PI * 2);
@@ -258,7 +260,7 @@
       ctx.save();
       ctx.globalAlpha = 1 - out;
       ctx.translate(w / 2, y);
-      ctx.fillStyle = COLORS.accent;
+      ctx.fillStyle = COLORS.orange;
       ctx.shadowColor = "rgba(255,107,44,0.45)";
       ctx.shadowBlur = 40 * s;
       roundRect(ctx, (-480 * s) / 2, (-160 * s) / 2, 480 * s, 160 * s, 36 * s);
@@ -326,7 +328,7 @@
 
     ctx.globalAlpha = a2 * (1 - out);
     ctx.font = "500 " + Math.round(46 * s) + "px Inter Tight, system-ui, sans-serif";
-    ctx.fillStyle = neon ? COLORS.magenta : COLORS.accent;
+    ctx.fillStyle = neon ? COLORS.magenta : COLORS.orange;
     ctx.shadowColor = neon ? COLORS.magenta : "transparent";
     ctx.fillText("Made with Claude + MCP", w / 2, h / 2 + 80 * s + (1 - a2) * 60 * s);
 

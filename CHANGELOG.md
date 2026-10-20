@@ -12,6 +12,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   previews of the four demos and slots for recorded videos.
 - `Deploy site` workflow that publishes `docs/` to GitHub Pages.
 
+### Changed
+
+- The landing page now uses Cavalry's brand violet (`#6437ff`) on a white background.
+
 ## [0.1.0] - 2026-10-17
 
 ### Added
